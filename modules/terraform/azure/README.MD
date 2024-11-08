@@ -15,7 +15,7 @@ export TF_VAR_ssh_public_key
 
 ### Set Variables
 ```bash
-CLOUD=azure
+CLOUD=aws
 TERRAFORM_MODULES_DIR=modules/terraform/$CLOUD
 ```
 
