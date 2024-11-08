@@ -23,8 +23,6 @@ locals {
   }
 }
 
-data "azurerm_client_config" "config" {}
-
 resource "azurerm_resource_group" "rg" {
   name     = local.resource_group_name
   location = "eastus2"
