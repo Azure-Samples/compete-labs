@@ -82,9 +82,10 @@ resource "azurerm_network_security_rule" "ssh" {
 }
 
 resource "azurerm_network_interface" "nic" {
-  name                = "chatbot-server-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  name                           = "chatbot-server-nic"
+  location                       = azurerm_resource_group.rg.location
+  resource_group_name            = azurerm_resource_group.rg.name
+  accelerated_networking_enabled = true
 
   ip_configuration {
     name                          = "internal"
