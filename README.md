@@ -28,6 +28,7 @@ CLOUD=azure
 
 ### Provision resources
 ```bash
+export TF_alias=$(whoami)
 TERRAFORM_MODULES_DIR=modules/terraform/$CLOUD
 pushd $TERRAFORM_MODULES_DIR
 terraform init

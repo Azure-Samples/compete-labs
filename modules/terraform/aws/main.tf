@@ -2,6 +2,7 @@ locals {
   tags = {
     "Name"              = "compete-labs"
     "deletion_due_time" = timeadd(timestamp(), "2h")
+    "alias"             = var.alias
   }
 }
 
