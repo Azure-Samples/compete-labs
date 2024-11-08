@@ -9,7 +9,33 @@ This project simulates a startup CEO trying to build a cloud-native intelligent 
 * A GPU Virtual Machine with nvidia driver and docker installed (with ssh key in ~/.ssh/id_rsa)
 * Network Security group to allow port 22 for SSH and 8000 for HTTP (port numbers subject to change)
 
-### Provision Resources
+### Generate SSH public and private key using SSH Keygen
+```bash
+ssh_key_path=$(pwd)/private_key.pem
+ssh-keygen -t rsa -b 2048 -f $ssh_key_path -N ""
+TF_VAR_ssh_public_key="${ssh_key_path}.pub"
+export TF_VAR_ssh_public_key
+```
+
+### Set AWS Cloud Variable
+```bash
+CLOUD=aws
+```
+### Set AZURE Cloud Variable
+```bash
+CLOUD=azure
+```
+
+### Provision resources
+```bash
+TERRAFORM_MODULES_DIR=modules/terraform/$CLOUD
+pushd $TERRAFORM_MODULES_DIR
+terraform init
+terraform plan
+terraform apply --auto-approve
+```
+
+## Measure Performance
 Measure latency of provision resources (make sure VM is network ready by ssh):
 ```bash
 ssh ubuntu@20.81.176.15 nvidia-smi
@@ -112,6 +138,9 @@ curl -X POST "http://20.81.176.15:8000/v1/completions" \
 ```
 
 ## Cleanup Resources
+```bash
+terraform destroy --auto-approve
+```
 
 Measure latency of provision resources
 
