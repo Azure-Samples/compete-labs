@@ -6,6 +6,8 @@ else
     echo "Azure CLI is already installed."
 fi
 
+az --version
+
 if ! command -v aws &> /dev/null
 then
     echo "AWS CLI not found. Installing AWS CLI..."
@@ -18,6 +20,8 @@ else
     echo "AWS CLI is already installed."
 fi
 
+aws --version
+
 if ! command -v terraform &> /dev/null
 then
     echo "Terraform not found. Installing Terraform..."
@@ -28,7 +32,8 @@ else
     echo "Terraform is already installed."
 fi
 
-echo "Please login to Microsoft Account"
+terraform --version
+
 if ! az account show &> /dev/null
 then
     echo "Please login to Microsoft Account"
@@ -37,5 +42,20 @@ else
     echo "Already logged in to Azure."
 fi
 
-alias=$(jq -r '.subscriptions[0].user.name' ~/.azure/azureProfile.json)
-echo "Welcome $alias to Compete Lab!"
+echo "Fetching secrets from Azure Key Vault..."
+aws_username=$(az keyvault secret show --vault-name aks-compete-labs --name aws-username --query value -o tsv)
+aws_password=$(az keyvault secret show --vault-name aks-compete-labs --name aws-password --query value -o tsv)
+HUGGING_FACE_TOKEN=$(az keyvault secret show --vault-name aks-compete-labs --name hugging-face-token --query value -o tsv)
+VLLM_API_KEY=$(az keyvault secret show --vault-name aks-compete-labs --name vllm-api-key --query value -o tsv)
+
+export HUGGING_FACE_TOKEN
+export VLLM_API_KEY
+
+echo "Logging in to AWS..."
+aws configure set aws_access_key_id $aws_username
+aws configure set aws_secret_access_key $aws_password
+aws sts get-caller-identity &> /dev/null
+
+USER_ALIAS=$(jq -r '.subscriptions[0].user.name' ~/.azure/azureProfile.json)
+export USER_ALIAS
+echo "Welcome $USER_ALIAS to Compete Lab!"
