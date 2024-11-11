@@ -24,7 +24,7 @@ locals {
   resource_group_name = var.run_id
   tags = {
     "Name"              = "compete-labs",
-    "deletion_due_time" = timeadd(timestamp(), "2h")
+    "deletion_due_time" = timeadd(timestamp(), "8h")
     "owner"             = var.owner
     "run_id"            = var.run_id
   }
