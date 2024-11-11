@@ -3,6 +3,7 @@ locals {
     "Name"              = "compete-labs-${formatdate("MM-DD-YYYY-hh-mm-ss", timestamp())}"
     "deletion_due_time" = timeadd(timestamp(), "2h")
     "owner"             = var.owner
+    "run_id"            = var.run_id
   }
 }
 

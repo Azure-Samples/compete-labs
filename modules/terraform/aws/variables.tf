@@ -22,3 +22,8 @@ variable "capacity_reservation_id" {
   description = "capacity reservation id"
   type        = string
 }
+
+variable "run_id" {
+  description = "unique id for this run"
+  type        = string
+}

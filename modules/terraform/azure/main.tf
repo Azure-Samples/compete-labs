@@ -26,6 +26,7 @@ locals {
     "Name"              = "compete-labs",
     "deletion_due_time" = timeadd(timestamp(), "2h")
     "owner"             = var.owner
+    "run_id"            = var.run_id
   }
 }
 

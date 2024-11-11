@@ -32,6 +32,7 @@ CLOUD=azure
 ### Provision resources
 ```bash
 export TF_VAR_owner=$(whoami)
+export TF_VAR_run_id=$(uuidgen)
 TERRAFORM_MODULES_DIR=modules/terraform/$CLOUD
 pushd $TERRAFORM_MODULES_DIR
 terraform init
