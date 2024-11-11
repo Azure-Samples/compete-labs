@@ -98,7 +98,7 @@ data "aws_ami" "deep_learning_gpu_ami" {
 }
 
 resource "aws_key_pair" "admin_key_pair" {
-  key_name   = "admin-key-pair"
+  key_name   = "admin-key-pair-${var.run_id}"
   public_key = file(var.ssh_public_key)
 }
 
