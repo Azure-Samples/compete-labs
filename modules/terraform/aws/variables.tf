@@ -3,7 +3,22 @@ variable "ssh_public_key" {
   type        = string
 }
 
-variable "alias" {
-  description = "user alias running this lab"
+variable "owner" {
+  description = "user running this lab"
+  type        = string
+}
+
+variable "region" {
+  description = "region to deploy resources"
+  type        = string
+}
+
+variable "zone_suffix" {
+  description = "zone suffix"
+  type        = string
+}
+
+variable "capacity_reservation_id" {
+  description = "capacity reservation id"
   type        = string
 }

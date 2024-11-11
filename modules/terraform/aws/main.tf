@@ -2,7 +2,7 @@ locals {
   tags = {
     "Name"              = "compete-labs"
     "deletion_due_time" = timeadd(timestamp(), "2h")
-    "alias"             = var.alias
+    "owner"             = var.owner
   }
 }
 
@@ -14,7 +14,7 @@ resource "aws_subnet" "subnet" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
-  availability_zone       = "us-west-2a"
+  availability_zone       = "${var.region}${var.zone_suffix}"
 }
 
 resource "aws_security_group" "sg" {
@@ -39,6 +39,13 @@ resource "aws_security_group" "sg" {
   ingress {
     from_port   = 443
     to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8000
+    to_port     = 8000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -97,14 +104,21 @@ resource "aws_key_pair" "admin_key_pair" {
 resource "aws_instance" "vm" {
   ami                         = data.aws_ami.deep_learning_gpu_ami.id
   instance_type               = "p4d.24xlarge"
-  availability_zone           = "us-west-2a"
+  availability_zone           = "${var.region}${var.zone_suffix}"
   subnet_id                   = aws_subnet.subnet.id
   vpc_security_group_ids      = [aws_security_group.sg.id]
   associate_public_ip_address = true
   key_name                    = aws_key_pair.admin_key_pair.key_name
+  root_block_device {
+    volume_size = 256
+  }
+
+  instance_market_options {
+    market_type = "capacity-block"
+  }
   capacity_reservation_specification {
     capacity_reservation_target {
-      capacity_reservation_id = "cr-0900ceb71def22569"
+      capacity_reservation_id = var.capacity_reservation_id
     }
   }
 }

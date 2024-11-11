@@ -3,7 +3,7 @@ variable "ssh_public_key" {
   type        = string
 }
 
-variable "alias" {
-  description = "user alias running this lab"
+variable "owner" {
+  description = "user running this lab"
   type        = string
 }
