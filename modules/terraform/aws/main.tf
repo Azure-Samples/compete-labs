@@ -1,6 +1,6 @@
 locals {
   tags = {
-    "Name"              = "compete-labs"
+    "Name"              = "compete-labs-${formatdate("MM-DD-YYYY-hh-mm-ss", timestamp())}"
     "deletion_due_time" = timeadd(timestamp(), "2h")
     "owner"             = var.owner
   }
