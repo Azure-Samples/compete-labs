@@ -2,7 +2,7 @@
 
 This project simulates a startup CEO trying to build a cloud-native intelligent app based on an open-source large language model. It aims to quickly test and compare different cloud providers to find the best performance and prices.
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?repo=compete-labs)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?repo=Azure-Samples/compete-labs)
 
 ## Getting Started
 
