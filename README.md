@@ -27,12 +27,14 @@ export TF_VAR_capacity_reservation_id="cr-0819f1716eaf8a4a9"
 ### Set AZURE Cloud Variable
 ```bash
 CLOUD=azure
+export TF_VAR_region=eastus2
 ```
 
 ### Provision resources
 ```bash
 export TF_VAR_owner=$(whoami)
 export TF_VAR_run_id=$(uuidgen)
+export TF_VAR_user_data_path=$(pwd)/modules/scripts/user_data.sh
 TERRAFORM_MODULES_DIR=modules/terraform/$CLOUD
 pushd $TERRAFORM_MODULES_DIR
 terraform init

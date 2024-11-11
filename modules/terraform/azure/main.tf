@@ -3,7 +3,7 @@ locals {
     "SSH" = {
       name                   = "SSH"
       priority               = 1001
-      destination_port_range = 22
+      destination_port_range = 2222
     },
     "HTTP" = {
       name                   = "HTTP"
@@ -32,7 +32,7 @@ locals {
 
 resource "azurerm_resource_group" "rg" {
   name     = local.resource_group_name
-  location = "eastus2"
+  location = var.region
   tags     = local.tags
 }
 
@@ -131,4 +131,19 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
     public_key = file(var.ssh_public_key)
   }
   tags = local.tags
+}
+
+
+resource "azurerm_virtual_machine_extension" "linux_vm_ext" {
+  name                 = "chatbot-server-vm-ext"
+  virtual_machine_id   = azurerm_linux_virtual_machine.linux_vm.id
+  publisher            = "Microsoft.Azure.Extensions"
+  type                 = "CustomScript"
+  type_handler_version = "2.0"
+  protected_settings   = <<PROT
+  {
+    "script" : "${base64encode(file(var.user_data_path))}"
+  }
+PROT
+  depends_on           = [azurerm_linux_virtual_machine.linux_vm]
 }
