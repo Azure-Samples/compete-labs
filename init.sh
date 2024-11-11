@@ -36,7 +36,7 @@ terraform --version
 
 if ! az account show &> /dev/null
 then
-    echo "Please login to Microsoft Account"
+    echo "Please login to Microsoft Account..."
     az login --use-device-code
 else
     echo "Already logged in to Azure."
