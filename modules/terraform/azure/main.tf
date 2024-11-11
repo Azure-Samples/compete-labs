@@ -21,7 +21,7 @@ locals {
       destination_port_range = 8000
     }
   }
-  resource_group_name = "compete-labs-${formatdate("MM-DD-YYYY-hh-mm-ss", timestamp())}"
+  resource_group_name = var.run_id
   tags = {
     "Name"              = "compete-labs",
     "deletion_due_time" = timeadd(timestamp(), "2h")
