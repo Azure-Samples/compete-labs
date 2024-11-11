@@ -17,6 +17,7 @@ ssh_key_path=$(pwd)/private_key.pem
 TF_VAR_ssh_public_key="${ssh_key_path}.pub"
 ssh-keygen -t rsa -b 2048 -f $ssh_key_path -N ""
 export TF_VAR_ssh_public_key
+export SSH_KEY_PATH=$ssh_key_path
 ```
 
 ### Set AWS Cloud Variable
@@ -37,6 +38,7 @@ export TF_VAR_region=eastus2
 export TF_VAR_owner=$(whoami)
 export TF_VAR_run_id=$(uuidgen)
 export TF_VAR_user_data_path=$(pwd)/modules/scripts/user_data.sh
+export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 TERRAFORM_MODULES_DIR=modules/terraform/$CLOUD
 pushd $TERRAFORM_MODULES_DIR
 terraform init
@@ -96,7 +98,7 @@ ssh ubuntu@20.81.176.15 "sudo docker image ls vllm/vllm-openai"
 Measure latency of download meta llama 3.1 8B model from huggingface, load the model into GPU, and start web server (on the background)
 ```bash
 ssh -t ubuntu@20.81.176.15 << EOF
-sudo docker run \
+sudo docker run -d \
   --runtime nvidia \
   --gpus all \
   -v ~/.cache/huggingface:/root/.cache/huggingface \
