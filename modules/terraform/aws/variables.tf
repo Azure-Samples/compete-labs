@@ -27,3 +27,8 @@ variable "run_id" {
   description = "unique id for this run"
   type        = string
 }
+
+variable "user_data_path" {
+  description = "path to userdata script"
+  type        = string
+}

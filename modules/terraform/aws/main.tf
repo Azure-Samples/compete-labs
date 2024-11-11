@@ -24,8 +24,8 @@ resource "aws_security_group" "sg" {
   vpc_id      = aws_vpc.vpc.id
 
   ingress {
-    from_port   = 22
-    to_port     = 22
+    from_port   = 2222
+    to_port     = 2222
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -110,6 +110,7 @@ resource "aws_instance" "vm" {
   vpc_security_group_ids      = [aws_security_group.sg.id]
   associate_public_ip_address = true
   key_name                    = aws_key_pair.admin_key_pair.key_name
+  user_data                   = file(var.user_data_path)
   root_block_device {
     volume_size = 256
   }
