@@ -133,7 +133,6 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
   tags = local.tags
 }
 
-
 resource "azurerm_virtual_machine_extension" "linux_vm_ext" {
   name                 = "chatbot-server-vm-ext"
   virtual_machine_id   = azurerm_linux_virtual_machine.linux_vm.id
