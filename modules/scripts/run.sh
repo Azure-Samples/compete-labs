@@ -1,8 +1,11 @@
 #!/bin/bash
 
+source "modules/scripts/utils.sh"
+
 PROVIDER=$1
 
-export TIMEOUT=600
+export TIMEOUT=300
+export POLLING_INTERVAL=3
 export USERNAME="ubuntu"
 export SSH_PORT=2222
 
@@ -34,6 +37,37 @@ run_ssh_command() {
   $sshCommand
 }
 
+validate_resources() {
+    local command="nvidia-smi"
+    local error_file="/tmp/${TF_VAR_run_id}-validate_resources-error.txt"
+
+    echo "Validating the resources..."
+    start_time=$(date +%s)
+    while true; do
+        run_ssh_command $SSH_KEY_PATH $USERNAME $PUBLIC_IP $SSH_PORT "$command" 2> $error_file
+        local exit_code=$?
+        if [[ $exit_code -eq 0 ]]; then
+            echo "Resources are validated successfully!"
+            export VALIDATE_STATUS="Success"
+            export VALIDATE_LATENCY=$(($(date +%s) - $start_time))
+            break
+        fi
+
+        if [ $(date +%s) -gt $timeout_time ]; then
+            export VALIDATE_STATUS="Failure"
+            export VALIDATE_LATENCY=$(($(date +%s) - $start_time))
+            export VALIDATE_ERROR=$(cat $error_file)
+            echo "Validating the resources failed with error: ${VALIDATE_ERROR}"
+            break
+        fi
+
+        echo "Wait for $POLLING_INTERVAL seconds before validating the resources..."
+        sleep $POLLING_INTERVAL
+    done
+
+    echo "Validation status: $VALIDATE_STATUS, Validation latency: $VALIDATE_LATENCY seconds"
+}
+
 deploy_server() {
     local command="sudo docker pull vllm/vllm-openai:v0.6.3.post1"
     local error_file="/tmp/${TF_VAR_run_id}-deploy_server-error.txt"
@@ -49,9 +83,9 @@ deploy_server() {
         echo "Server is deployed successfully!"
         export DEPLOY_STATUS="Success"
     else
-        echo "Error: Cannot pull the docker image!"
         export DEPLOY_STATUS="Failure"
         export DEPLOY_ERROR=$(cat $error_file)
+        echo "Deploying the server failed with error: ${DEPLOY_ERROR}"
     fi
     echo "Deploy status: $DEPLOY_STATUS, Deploy latency: $DEPLOY_LATENCY seconds"
 }
@@ -76,19 +110,18 @@ start_server() {
         --model meta-llama/Meta-Llama-3.1-8B \
         --max_model_len 10000"
     local error_file="/tmp/${TF_VAR_run_id}-start_server-error.txt"
-
+    
     echo "Starting the server..."
     start_time=$(date +%s)
     timeout_time=$((start_time + TIMEOUT))
-    run_ssh_command $SSH_KEY_PATH $USERNAME $PUBLIC_IP $SSH_PORT "$command" 2> $error_file
+    container_id=$(run_ssh_command $SSH_KEY_PATH $USERNAME $PUBLIC_IP $SSH_PORT "$command" 2> $error_file)
     local exit_code=$?
-
+    
     if [[ $exit_code -eq 0 ]]; then
         local health_endpoint="http://${PUBLIC_IP}:8000/health"
-        local polling_interval=5
 
         while true; do
-            response=$(curl -v -s -o /dev/null -w "%{http_code}" $health_endpoint)
+            response=$(curl -s -o /dev/null -w "%{http_code}" $health_endpoint)
             if [ $response -eq 200 ]; then
                 echo "Server is started successfully!"
                 export START_STATUS="Success"
@@ -99,18 +132,21 @@ start_server() {
             if [ $(date +%s) -gt $timeout_time ]; then
                 echo "Timeout: Cannot start the server!"
                 export START_STATUS="Failure"
-                export START_ERROR="Cannot start the server!"
                 export START_LATENCY=$(($(date +%s) - $start_time))
+                echo "Checking container logs for more information..."
+                run_ssh_command $SSH_KEY_PATH $USERNAME $PUBLIC_IP $SSH_PORT "sudo docker logs $container_id" 2>&1 | tee -a $error_file
+                export START_ERROR=$(cat $error_file)
                 break
             fi
-
-            echo "Wait for $polling_interval seconds before checking the server status..."
-            sleep $polling_interval
+            
+            echo "Wait for $POLLING_INTERVAL seconds before checking the server status..."
+            sleep $POLLING_INTERVAL
         done
     else
-        echo "Error: Cannot start the server!"
         export START_STATUS="Failure"
         export START_ERROR=$(cat $error_file)
+        
+        echo "Starting the server failed with error: ${START_ERROR}"
     fi
     echo "Start status: $START_STATUS, Start latency: $START_LATENCY seconds"
 }
@@ -126,73 +162,41 @@ test_server() {
     local completion_endpoint="http://${PUBLIC_IP}:8000/v1/completions"
     local prompt="You are a helpful assistant. Tell me a joke."
     local data="{\"model\": \"meta-llama/Meta-Llama-3.1-8B\", \"prompt\": \"$prompt\", \"temperature\": 0.7, \"top_k\": -1, \"max_tokens\": 9900}"
+    local error_file="/tmp/${TF_VAR_run_id}-test_server-error.txt"
 
-    echo "Testing the server..."
+    echo "Testing the server with request data $data ..."
     start_time=$(date +%s)
-    response=$(curl -X POST $completion_endpoint \
+    curl -X POST $completion_endpoint \
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer ${VLLM_API_KEY}" \
-        -d "$data")
+        -d "$data" 2> $error_file
     local exit_code=$?
     end_time=$(date +%s)
     export TEST_LATENCY=$((end_time - start_time))
 
     if [[ $exit_code -eq 0 ]]; then
-        echo $response
         echo "Server is tested successfully!"
         export TEST_STATUS="Success"
     else
-        echo "Error: Cannot test the server!"
         export TEST_STATUS="Failure"
+        export TEST_ERROR=$(cat $error_file)
+        echo "Testing the server failed with error: ${TEST_ERROR}"
     fi
     echo "Test status: $TEST_STATUS, Test latency: $TEST_LATENCY seconds"
 }
 
-publish_results() {
-    local result_file="/tmp/${TF_VAR_run_id}-result.json"
-    local storage_account="akstelescope"
-    local container_name="compete-labs"
-
-    steps="deploy start test"
-    for step in $steps; do
-        status_var="${step^^}_STATUS"
-        latency_var="${step^^}_LATENCY"
-        error_var="${step^^}_ERROR"
-
-        eval "${step}_info=\$(jq -n \
-            --arg status \"\${!status_var}\" \
-            --arg latency \"\${!latency_var}\" \
-            --arg error \"\${!error_var}\" \
-            '{status: \$status, latency: \$latency, error: \$error}')"
-        eval echo "${step^^}_INFO: \${${step}_info}"
-    done
-
-    data=$(jq -n \
-        --arg provision "$PROVISION_INFO" \
-        --arg deploy "$deploy_info" \
-        --arg start "$start_info" \
-        --arg test "$test_info" \
-        --arg destroy "$DESTROY_INFO" \
-        '{provision: $provision, deploy: $deploy, start: $start, test: $test, destroy: $destroy}')
-
-    result=$(jq -n \
-        --arg owner "$USER_ALIAS" \
-        --arg cloud_info "$CLOUD_INFO" \
-        --arg lab_info "$LAB_INFO" \
-        --arg result "$data" \
-        '{owner: $owner, cloud_info: $cloud_info, lab_info: $lab_info, result: $result}')
-
-    echo "Result: $result"
-
-    echo $result > $result_file
-    echo "Upload the result file to the cloud storage..."
-    az storage blob upload --account-name $storage_account --auth-mode login --overwrite \
-        --container-name $container_name --file $result_file --name "${TF_VAR_run_id}.json"
-}
-
-#Main
+# Main
+confirm "get_public_ip_${PROVIDER}"
 get_public_ip_${PROVIDER}
+
+confirm "validate_resources"
+validate_resources
+
+confirm "deploy_server"
 deploy_server
+
+confirm "start_server"
 start_server
+
+confirm "test_server"
 test_server
-publish_results

@@ -14,13 +14,8 @@ This project simulates a startup CEO trying to build a cloud-native intelligent 
 
 ### Make Commands
 ```bash
-  make create-resources CLOUD=azure REGION=eastus2
-  make create-resources CLOUD=aws REGION=us-west-2
-  make validate-resources CLOUD=azure REGION=eastus2
-  make validate-resources CLOUD=aws REGION=us-west-2
-  make cleanup-resources CLOUD=azure REGION=eastus2
-  make cleanup-resources CLOUD=aws REGION=us-west-2
   make all CLOUD=azure REGION=eastus2
+  make all CLOUD=aws REGION=us-west-2
 ```
 
 ## Measure Performance

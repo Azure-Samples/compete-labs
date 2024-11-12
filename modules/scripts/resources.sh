@@ -39,6 +39,53 @@ set_aws_variables() {
   export TF_VAR_zone_suffix="a"
 }
 
+provision_resources() {
+  local error_file="/tmp/${TF_VAR_run_id}-provision-error.txt"
+  pushd modules/terraform/$CLOUD
+  terraform init
+  echo "Provisioning resources in $CLOUD..."
+  start_time=$(date +%s)
+  terraform apply -auto-approve 2> $error_file
+  local exit_code=$?
+  end_time=$(date +%s)
+  export PROVISION_LATENCY=$((end_time - start_time))
+
+  if [[ $exit_code -eq 0 ]]; then
+    echo "Resources are provisioned successfully!"
+    export PROVISION_STATUS="Success"
+  else
+    echo "Error: Failed to provision resources!"
+    export PROVISION_STATUS="Failure"
+    export PROVISION_ERROR=$(cat $error_file)
+  fi
+  echo "Provision status: $PROVISION_STATUS, Provision latency: $PROVISION_LATENCY seconds"
+  popd
+}
+
+destroy_resources() {
+  local error_file="/tmp/${TF_VAR_run_id}-destroy-error.txt"
+  pushd modules/terraform/$CLOUD
+  echo "Destroying resources in $CLOUD..."
+  start_time=$(date +%s)
+  terraform destroy -auto-approve 2> $error_file
+  local exit_code=$?
+  end_time=$(date +%s)
+  export DESTROY_LATENCY=$((end_time - start_time))
+
+  if [[ $exit_code -eq 0 ]]; then
+    echo "Resources are destroyed successfully!"
+    export DESTROY_STATUS="Success"
+  else
+    echo "Error: Failed to destroy resources!"
+    export DESTROY_STATUS="Failure"
+    export DESTROY_ERROR=$(cat $error_file)
+  fi
+  echo "Destroy status: $DESTROY_STATUS, Destroy latency: $DESTROY_LATENCY seconds"
+
+  popd
+  rm -f private_key.pem*
+}
+
 set_azure_variables() {
   REGION=${3:-eastus2}
   export TF_VAR_region=$REGION
@@ -55,6 +102,10 @@ set_${CLOUD}_variables $3
 case $ACTION in
   provision)
     generate_ssh_key
+    provision_resources
+    ;;
+  destroy)
+    destroy_resources
     ;;
   *)
     ;;
