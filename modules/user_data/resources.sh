@@ -45,9 +45,7 @@ set_azure_variables() {
 }
 
 set_common_variables() {
-  export TF_VAR_owner=$(whoami)
   export TF_VAR_user_data_path=$(pwd)/modules/scripts/user_data.sh
-  TERRAFORM_MODULES_DIR=modules/terraform/$CLOUD
 }
 
 set_ssh_path
