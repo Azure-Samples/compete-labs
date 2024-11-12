@@ -11,38 +11,21 @@ This project simulates a startup CEO trying to build a cloud-native intelligent 
 * A GPU Virtual Machine with nvidia driver and docker installed (with ssh key in ~/.ssh/id_rsa)
 * Network Security group to allow port 22 for SSH and 8000 for HTTP (port numbers subject to change)
 
-### Generate SSH public and private key using SSH Keygen
+
+### Make Commands
 ```bash
-ssh_key_path=$(pwd)/private_key.pem
-TF_VAR_ssh_public_key="${ssh_key_path}.pub"
-ssh-keygen -t rsa -b 2048 -f $ssh_key_path -N ""
-export TF_VAR_ssh_public_key
+  ```bash
+  make create-resources CLOUD=azure REGION=eastus2
+  make create-resources CLOUD=aws REGION=us-west-2
+  make validate-resources CLOUD=azure REGION=eastus2
+  make validate-resources CLOUD=aws REGION=us-west-2
+  make cleanup-resources CLOUD=azure REGION=eastus2
+  make cleanup-resources CLOUD=aws REGION=us-west-2
+  make all CLOUD=azure REGION=eastus2
+  ```
 ```
 
-### Set AWS Cloud Variable
-```bash
-CLOUD=aws
-export TF_VAR_region=us-west-2
-export TF_VAR_zone_suffix=a
-export TF_VAR_capacity_reservation_id="cr-0819f1716eaf8a4a9"
-```
-### Set AZURE Cloud Variable
-```bash
-CLOUD=azure
-export TF_VAR_region=eastus2
-```
 
-### Provision resources
-```bash
-export TF_VAR_owner=$(whoami)
-export TF_VAR_run_id=$(uuidgen)
-export TF_VAR_user_data_path=$(pwd)/modules/scripts/user_data.sh
-TERRAFORM_MODULES_DIR=modules/terraform/$CLOUD
-pushd $TERRAFORM_MODULES_DIR
-terraform init
-terraform plan
-terraform apply --auto-approve
-```
 
 ## Measure Performance
 Measure latency of provision resources (make sure VM is network ready by ssh):
@@ -148,7 +131,8 @@ curl -X POST "http://20.81.176.15:8000/v1/completions" \
 
 ## Cleanup Resources
 ```bash
-terraform destroy --auto-approve
+make cleanup-resources CLOUD=azure REGION=eastus2
+make cleanup-resources CLOUD=aws REGION=us-west-2
 ```
 
 Measure latency of provision resources
