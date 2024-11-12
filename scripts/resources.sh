@@ -91,6 +91,7 @@ destroy_resources() {
 
 set_azure_variables() {
   REGION=${3:-eastus2}
+  export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
   export TF_VAR_region=$REGION
 }
 
