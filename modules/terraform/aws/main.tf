@@ -16,6 +16,8 @@ resource "aws_subnet" "subnet" {
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "${var.region}${var.zone_suffix}"
+
+  depends_on = [aws_vpc.vpc]
 }
 
 resource "aws_security_group" "sg" {
@@ -31,8 +33,8 @@ resource "aws_security_group" "sg" {
   }
 
   ingress {
-    from_port   = 8080
-    to_port     = 8080
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -44,19 +46,14 @@ resource "aws_security_group" "sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    from_port   = 8000
-    to_port     = 8000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  depends_on = [aws_vpc.vpc]
 }
 
 
@@ -71,11 +68,14 @@ resource "aws_route_table" "route_tables" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.internet_gateway.id
   }
+
+  depends_on = [aws_internet_gateway.internet_gateway]
 }
 
 resource "aws_route_table_association" "route_table_association" {
   subnet_id      = aws_subnet.subnet.id
   route_table_id = aws_route_table.route_tables.id
+  depends_on     = [aws_route_table.route_tables]
 }
 
 data "aws_ami" "deep_learning_gpu_ami" {

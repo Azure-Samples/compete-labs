@@ -14,11 +14,6 @@ locals {
       name                   = "HTTPS"
       priority               = 1003
       destination_port_range = 443
-    },
-    "HTTP-8000" = {
-      name                   = "HTTP-8000"
-      priority               = 1004
-      destination_port_range = 8000
     }
   }
   resource_group_name = var.run_id

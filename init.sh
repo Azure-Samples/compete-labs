@@ -45,17 +45,22 @@ fi
 echo "Fetching secrets from Azure Key Vault..."
 aws_username=$(az keyvault secret show --vault-name aks-compete-labs --name aws-username --query value -o tsv)
 aws_password=$(az keyvault secret show --vault-name aks-compete-labs --name aws-password --query value -o tsv)
+aws_access_key_id=$(az keyvault secret show --vault-name aks-compete-labs --name aws-access-key-id --query value -o tsv)
+aws_secret_access_key=$(az keyvault secret show --vault-name aks-compete-labs --name aws-secret-access-key --query value -o tsv)
 HUGGING_FACE_TOKEN=$(az keyvault secret show --vault-name aks-compete-labs --name hugging-face-token --query value -o tsv)
 VLLM_API_KEY=$(az keyvault secret show --vault-name aks-compete-labs --name vllm-api-key --query value -o tsv)
 
 export HUGGING_FACE_TOKEN
 export VLLM_API_KEY
+export TF_VAR_run_id=$RUN_ID
 
 echo "Logging in to AWS..."
-aws configure set aws_access_key_id $aws_username
-aws configure set aws_secret_access_key $aws_password
+aws configure set aws_access_key_id $aws_access_key_id
+aws configure set aws_secret_access_key $aws_secret_access_key
+aws configure set region us-west-2
 aws sts get-caller-identity &> /dev/null
 
 USER_ALIAS=$(jq -r '.subscriptions[0].user.name' ~/.azure/azureProfile.json)
 export USER_ALIAS
+export TF_VAR_owner=$USER_ALIAS
 echo "Welcome $USER_ALIAS to Compete Lab!"
