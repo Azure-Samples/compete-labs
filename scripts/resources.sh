@@ -54,7 +54,7 @@ provision_resources() {
     echo "Resources are provisioned successfully!"
     export PROVISION_STATUS="Success"
   else
-    echo "Error: Failed to provision resources!"
+    echo "Error: Failed to provision resources: $(cat $error_file)"
     export PROVISION_STATUS="Failure"
     export PROVISION_ERROR=$(cat $error_file)
   fi
@@ -76,7 +76,7 @@ destroy_resources() {
     echo "Resources are destroyed successfully!"
     export DESTROY_STATUS="Success"
   else
-    echo "Error: Failed to destroy resources!"
+    echo "Error: Failed to destroy resources: $(cat $error_file)"
     export DESTROY_STATUS="Failure"
     export DESTROY_ERROR=$(cat $error_file)
   fi
@@ -92,7 +92,7 @@ set_azure_variables() {
 }
 
 set_common_variables() {
-  export TF_VAR_user_data_path=$(pwd)/modules/scripts/user_data.sh
+  export TF_VAR_user_data_path=$(pwd)/modules/user_data/user_data.sh
 }
 
 set_ssh_path

@@ -17,6 +17,17 @@ export CLOUD=azure
 export REGION=eastus2
 ```
 
+### Set AWS Cloud Variable
+```bash
+export CLOUD=aws
+export REGION=us-west-2
+```
+### Set AZURE Cloud Variable
+```bash
+export CLOUD=azure
+export REGION=eastus2
+```
+
 ### Set AWS Variables
 ```bash
 export CLOUD=aws
@@ -48,6 +59,14 @@ Calculate cost based on the hourly rate of VM SKU and total time spent, add add 
 ```bash
 source scripts/publish.sh $CLOUD
 ```
+
+## Make commands
+```bash
+make all cloud=$CLOUD region=$REGION
+```
+Note:
+- This command will provision resources, run the performance test, and publish the results.
+- Make sure to set the cloud and region variables before running the command.
 
 ## Make commands
 ```bash
