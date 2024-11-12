@@ -15,7 +15,6 @@ source init.sh
 
 ### Make Commands
 ```bash
-  ```bash
   make create-resources CLOUD=azure REGION=eastus2
   make create-resources CLOUD=aws REGION=us-west-2
   make validate-resources CLOUD=azure REGION=eastus2
@@ -23,10 +22,7 @@ source init.sh
   make cleanup-resources CLOUD=azure REGION=eastus2
   make cleanup-resources CLOUD=aws REGION=us-west-2
   make all CLOUD=azure REGION=eastus2
-  ```
 ```
-
-
 
 ## Measure Performance
 
