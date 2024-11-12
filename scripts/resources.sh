@@ -1,9 +1,11 @@
 #!/bin/bash
 
+source scripts/utils.sh
+
 # Check if action and cloud are provided
 if [ -z "$1" ] || [ -z "$2" ]; then
   echo "Usage: $0 <action> <cloud> [region]"
-  echo "Action options: provision, cleanup"
+  echo "Action options: provision, destroy"
   echo "Cloud options: aws, azure"
   echo "Region (optional, defaults to 'us-west-2' for AWS and 'eastus' for Azure)"
   exit 1
@@ -80,11 +82,11 @@ destroy_resources() {
     export DESTROY_STATUS="Failure"
     export DESTROY_ERROR=$(cat $error_file)
   fi
-  echo "Destroy status: $DESTROY_STATUS, Destroy latency: $DESTROY_LATENCY seconds"
-
-  popd
-  rm -f private_key.pem*
   rm -f terraform.tfstate*
+  echo "Destroy status: $DESTROY_STATUS, Destroy latency: $DESTROY_LATENCY seconds"
+  popd
+
+  rm -f private_key.pem*
 }
 
 set_azure_variables() {
@@ -102,12 +104,17 @@ set_${CLOUD}_variables $3
 
 case $ACTION in
   provision)
+    confirm "generate_ssh_key"
     generate_ssh_key
+    confirm "provision_resources"
     provision_resources
     ;;
   destroy)
+    confirm "destroy_resources"
     destroy_resources
     ;;
   *)
+    echo "Invalid action: $ACTION"
+    exit 1
     ;;
 esac
