@@ -11,17 +11,21 @@ This project simulates a startup CEO trying to build a cloud-native intelligent 
 ```bash
 source init.sh
 ```
-
-
-### Make Commands
+### Set Azure Variables
 ```bash
-  make create-resources CLOUD=azure REGION=eastus2
-  make create-resources CLOUD=aws REGION=us-west-2
-  make validate-resources CLOUD=azure REGION=eastus2
-  make validate-resources CLOUD=aws REGION=us-west-2
-  make cleanup-resources CLOUD=azure REGION=eastus2
-  make cleanup-resources CLOUD=aws REGION=us-west-2
-  make all CLOUD=azure REGION=eastus2
+export CLOUD=azure
+export REGION=eastus2
+```
+
+### Set AWS Variables
+```bash
+export CLOUD=aws
+export REGION=us-west-2
+```
+
+### Provision resources
+```bash
+source scripts/resources.sh provision $CLOUD $REGION
 ```
 
 ## Measure Performance
@@ -32,8 +36,7 @@ source scripts/run.sh $CLOUD
 
 ## Cleanup Resources
 ```bash
-make cleanup-resources CLOUD=azure REGION=eastus2
-make cleanup-resources CLOUD=aws REGION=us-west-2
+source scripts/resources.sh destroy $CLOUD $REGION
 ```
 
 Measure latency of provision resources
@@ -45,3 +48,11 @@ Calculate cost based on the hourly rate of VM SKU and total time spent, add add 
 ```bash
 source scripts/publish.sh $CLOUD
 ```
+
+## Make commands
+```bash
+make all cloud=$CLOUD region=$REGION
+```
+Note:
+- This command will provision resources, run the performance test, and publish the results.
+- Make sure to set the cloud and region variables before running the command.
