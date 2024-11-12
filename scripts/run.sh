@@ -104,11 +104,12 @@ start_server() {
         -v ~/.cache/huggingface:/root/.cache/huggingface \
         --env "HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_TOKEN}" \
         --env "VLLM_API_KEY=${VLLM_API_KEY}" \
-        -p 8000:8000 \
+        -p 80:80 \
         --ipc=host \
         vllm/vllm-openai:v0.6.3.post1 \
         --model meta-llama/Meta-Llama-3.1-8B \
-        --max_model_len 10000"
+        --max_model_len 10000 \
+        --port 80"
     local error_file="/tmp/${TF_VAR_run_id}-start_server-error.txt"
     
     echo "Starting the server..."
@@ -118,7 +119,7 @@ start_server() {
     local exit_code=$?
     
     if [[ $exit_code -eq 0 ]]; then
-        local health_endpoint="http://${PUBLIC_IP}:8000/health"
+        local health_endpoint="http://${PUBLIC_IP}:80/health"
 
         while true; do
             response=$(curl -s -o /dev/null -w "%{http_code}" $health_endpoint)
@@ -159,24 +160,33 @@ test_server() {
         return
     fi
 
-    local completion_endpoint="http://${PUBLIC_IP}:8000/v1/completions"
+    local completion_endpoint="http://${PUBLIC_IP}:80/v1/completions"
     local prompt="You are a helpful assistant. Tell me a joke."
     local data="{\"model\": \"meta-llama/Meta-Llama-3.1-8B\", \"prompt\": \"$prompt\", \"temperature\": 0.7, \"top_k\": -1, \"max_tokens\": 9900}"
     local error_file="/tmp/${TF_VAR_run_id}-test_server-error.txt"
+    local response_file="/tmp/${TF_VAR_run_id}-test_server-response.txt"
 
     echo "Testing the server with request data $data ..."
     start_time=$(date +%s)
-    curl -X POST $completion_endpoint \
+    status_code=$(curl -o $response_file -w "%{http_code}" \
+        -X POST $completion_endpoint \
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer ${VLLM_API_KEY}" \
-        -d "$data" 2> $error_file
+        -d "$data" 2> $error_file)
     local exit_code=$?
     end_time=$(date +%s)
     export TEST_LATENCY=$((end_time - start_time))
 
     if [[ $exit_code -eq 0 ]]; then
-        echo "Server is tested successfully!"
-        export TEST_STATUS="Success"
+        if [[ $status_code -eq 200 ]]; then
+            cat $response_file
+            echo "Server is tested successfully!"
+            export TEST_STATUS="Success"
+        else
+            export TEST_STATUS="Failure"
+            export TEST_ERROR=$(cat $response_file)
+            echo "Testing the server failed with status code ${status_code} and response: ${TEST_ERROR}"
+        fi
     else
         export TEST_STATUS="Failure"
         export TEST_ERROR=$(cat $error_file)
