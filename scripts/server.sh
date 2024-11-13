@@ -82,10 +82,11 @@ validate_resources() {
 }
 
 deploy_server() {
-    local command="sudo docker pull vllm/vllm-openai:v0.6.3.post1"
+    local model="vllm/vllm-openai:v0.6.3.post1"
+    local command="sudo docker pull $model"
     local error_file="/tmp/${TF_VAR_run_id}-deploy_server-error.txt"
 
-    echo "Deploying the server..."
+    echo "Deploying the server with model ${model}..."
     start_time=$(date +%s)
     run_ssh_command $SSH_KEY_PATH $USERNAME $PUBLIC_IP $SSH_PORT "$command" "-t" 2> $error_file
     local exit_code=$?
@@ -218,12 +219,15 @@ case $ACTION in
     deploy)
         get_public_ip_${CLOUD}
         validate_resources
+        confirm "deploy_server"
         deploy_server
         ;;
     start)
+        confirm "start_server"
         start_server
         ;;
     test)
+        confirm "test_server"
         test_server
         ;;
     *)
