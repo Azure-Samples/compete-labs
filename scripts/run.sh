@@ -4,7 +4,7 @@ source scripts/utils.sh
 
 PROVIDER=$1
 
-export TIMEOUT=300
+export TIMEOUT=600
 export POLLING_INTERVAL=3
 export USERNAME="ubuntu"
 export SSH_PORT=2222
@@ -43,6 +43,7 @@ validate_resources() {
 
     echo "Validating the resources..."
     start_time=$(date +%s)
+    timeout_time=$((start_time + TIMEOUT))
     while true; do
         run_ssh_command $SSH_KEY_PATH $USERNAME $PUBLIC_IP $SSH_PORT "$command" 2> $error_file
         local exit_code=$?
