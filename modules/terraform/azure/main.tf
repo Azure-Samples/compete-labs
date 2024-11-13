@@ -16,7 +16,7 @@ locals {
       destination_port_range = 443
     }
   }
-  resource_group_name = var.run_id
+  resource_group_name = "compete-labs-${var.owner}"
   tags = {
     "Name"              = "compete-labs",
     "deletion_due_time" = timeadd(timestamp(), "8h")

@@ -1,6 +1,6 @@
 locals {
   tags = {
-    "Name"              = "compete-labs"
+    "Name"              = "compete-labs-${var.owner}"
     "deletion_due_time" = timeadd(timestamp(), "8h")
     "owner"             = var.owner
     "run_id"            = var.run_id

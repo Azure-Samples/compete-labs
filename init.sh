@@ -42,7 +42,15 @@ else
     echo "Already logged in to Azure."
 fi
 
+ssh_key_path=$(pwd)/private_key.pem
+TF_VAR_ssh_public_key="${ssh_key_path}.pub"
+export TF_VAR_ssh_public_key
+export SSH_KEY_PATH=$ssh_key_path
+ssh-keygen -t rsa -b 2048 -f $SSH_KEY_PATH -N ""
+export TF_VAR_user_data_path=$(pwd)/modules/user_data/user_data.sh
+
 echo "Fetching secrets from Azure Key Vault..."
+azure_subscription_id=$(az keyvault secret show --vault-name aks-compete-labs --name compete-subscription --query value -o tsv)
 aws_username=$(az keyvault secret show --vault-name aks-compete-labs --name aws-username --query value -o tsv)
 aws_password=$(az keyvault secret show --vault-name aks-compete-labs --name aws-password --query value -o tsv)
 aws_access_key_id=$(az keyvault secret show --vault-name aks-compete-labs --name aws-access-key-id --query value -o tsv)
@@ -54,6 +62,9 @@ RUN_ID=$(uuidgen)
 export HUGGING_FACE_TOKEN
 export VLLM_API_KEY
 export TF_VAR_run_id=$RUN_ID
+export ARM_SUBSCRIPTION_ID=$azure_subscription_id
+
+az account set --subscription $azure_subscription_id
 
 echo "Logging in to AWS..."
 aws configure set aws_access_key_id $aws_access_key_id
@@ -61,7 +72,8 @@ aws configure set aws_secret_access_key $aws_secret_access_key
 aws configure set region us-west-2
 aws sts get-caller-identity &> /dev/null
 
-USER_ALIAS=$(jq -r '.subscriptions[0].user.name' ~/.azure/azureProfile.json)
-export USER_ALIAS
+USER_EMAIL=$(jq -r '.subscriptions[0].user.name' ~/.azure/azureProfile.json)
+export USER_EMAIL
+USER_ALIAS=$(echo $USER_EMAIL | cut -d'@' -f1)
 export TF_VAR_owner=$USER_ALIAS
 echo "Welcome $USER_ALIAS to Compete Lab!"

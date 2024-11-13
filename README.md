@@ -36,7 +36,7 @@ source scripts/run.sh $CLOUD
 
 ## Cleanup Resources
 ```bash
-source scripts/resources.sh destroy $CLOUD $REGION
+source scripts/resources.sh cleanup $CLOUD $REGION
 ```
 
 Measure latency of provision resources
