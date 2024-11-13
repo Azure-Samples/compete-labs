@@ -22,7 +22,7 @@ set_ssh_path() {
 }
 
 generate_ssh_key() {
-  ssh-keygen -t rsa -b 2048 -f $ssh_key_path -N ""
+  ssh-keygen -t rsa -b 2048 -f $SSH_KEY_PATH -N ""
 }
 
 set_aws_variables() {
