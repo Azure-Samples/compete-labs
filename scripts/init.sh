@@ -13,9 +13,10 @@ then
     echo "AWS CLI not found. Installing AWS CLI..."
     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
     unzip awscliv2.zip
-    sudo ./aws/install
+    ./aws/install -i $HOME/.aws-cli -b $HOME/.local/bin --update
     rm awscliv2.zip
     rm -rf aws
+    export PATH=$PATH:$HOME/.local/bin
 else
     echo "AWS CLI is already installed."
 fi
@@ -46,7 +47,12 @@ ssh_key_path=$(pwd)/private_key.pem
 TF_VAR_ssh_public_key="${ssh_key_path}.pub"
 export TF_VAR_ssh_public_key
 export SSH_KEY_PATH=$ssh_key_path
-ssh-keygen -t rsa -b 2048 -f $SSH_KEY_PATH -N ""
+if [ -f $SSH_KEY_PATH ]; then
+    echo "SSH key already exists."
+else
+    echo "Generating SSH key..."
+    ssh-keygen -t rsa -b 2048 -f $SSH_KEY_PATH -N ""
+fi
 export TF_VAR_user_data_path=$(pwd)/modules/user_data/user_data.sh
 
 echo "Fetching secrets from Azure Key Vault..."
