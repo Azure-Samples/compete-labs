@@ -5,7 +5,7 @@ source scripts/utils.sh
 # Check if action and cloud are provided
 if [ -z "$1" ] || [ -z "$2" ]; then
   echo "Usage: $0 <action> <cloud> [region]"
-  echo "Action options: provision, destroy"
+  echo "Action options: provision, cleanup"
   echo "Cloud options: aws, azure"
   echo "Region (optional, defaults to 'us-west-2' for AWS and 'eastus' for Azure)"
   exit 1
@@ -64,55 +64,46 @@ provision_resources() {
   popd
 }
 
-destroy_resources() {
-  local error_file="/tmp/${TF_VAR_run_id}-destroy-error.txt"
+cleanup_resources() {
+  local error_file="/tmp/${TF_VAR_run_id}-cleanup-error.txt"
   pushd modules/terraform/$CLOUD
-  echo "Destroying resources in $CLOUD..."
+  echo "Cleaning up resources in $CLOUD..."
   start_time=$(date +%s)
   terraform destroy -auto-approve 2> $error_file
   local exit_code=$?
   end_time=$(date +%s)
-  export DESTROY_LATENCY=$((end_time - start_time))
+  export CLEANUP_LATENCY=$((end_time - start_time))
 
   if [[ $exit_code -eq 0 ]]; then
-    echo "Resources are destroyed successfully!"
-    export DESTROY_STATUS="Success"
+    echo "Resources are cleaned up successfully!"
+    export CLEANUP_STATUS="Success"
   else
-    echo "Error: Failed to destroy resources: $(cat $error_file)"
-    export DESTROY_STATUS="Failure"
-    export DESTROY_ERROR=$(cat $error_file)
+    echo "Error: Failed to clean up resources: $(cat $error_file)"
+    export CLEANUP_STATUS="Failure"
+    export CLEANUP_ERROR=$(cat $error_file)
   fi
   rm -f terraform.tfstate*
-  echo "Destroy status: $DESTROY_STATUS, Destroy latency: $DESTROY_LATENCY seconds"
+  echo "Cleanup status: $CLEANUP_STATUS, Cleanup latency: $CLEANUP_LATENCY seconds"
   popd
 
   rm -f private_key.pem*
 }
 
 set_azure_variables() {
-  REGION=${3:-eastus2}
-  export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+  REGION=${3:-eastus2}  
   export TF_VAR_region=$REGION
 }
 
-set_common_variables() {
-  export TF_VAR_user_data_path=$(pwd)/modules/user_data/user_data.sh
-}
-
-set_ssh_path
-set_common_variables
 set_${CLOUD}_variables $3
 
 case $ACTION in
   provision)
-    confirm "generate_ssh_key"
-    generate_ssh_key
     confirm "provision_resources"
     provision_resources
     ;;
-  destroy)
-    confirm "destroy_resources"
-    destroy_resources
+  cleanup)
+    confirm "cleanup_resources"
+    cleanup_resources
     ;;
   *)
     echo "Invalid action: $ACTION"

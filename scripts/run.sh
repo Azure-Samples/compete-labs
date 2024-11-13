@@ -10,9 +10,9 @@ export USERNAME="ubuntu"
 export SSH_PORT=2222
 
 get_public_ip_azure() {
-    public_ip_name=$(az network public-ip list --resource-group $TF_VAR_run_id \
+    public_ip_name=$(az network public-ip list --resource-group "compete-labs-$TF_VAR_owner" \
         --query "[0].name" --output tsv)
-    public_ip=$(az network public-ip show --resource-group $TF_VAR_run_id \
+    public_ip=$(az network public-ip show --resource-group "compete-labs-$TF_VAR_owner" \
         --name $public_ip_name --query "ipAddress" --output tsv)
     echo "Public IP: $public_ip"
     export PUBLIC_IP=$public_ip

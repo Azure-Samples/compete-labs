@@ -17,6 +17,6 @@ all:
 	source init.sh && \
 	$(SCRIPTS_DIR)/resources.sh provision $(CLOUD) $(REGION) && \
 	$(SCRIPTS_DIR)/run.sh $(CLOUD) && \
-	$(SCRIPTS_DIR)/resources.sh destroy $(CLOUD) $(REGION) && \
+	$(SCRIPTS_DIR)/resources.sh cleanup $(CLOUD) $(REGION) && \
 	$(SCRIPTS_DIR)/publish.sh $(CLOUD)
 
