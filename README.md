@@ -30,8 +30,20 @@ source scripts/resources.sh provision $CLOUD $REGION
 ```
 
 ## Running Tests
+
+### Deploying the server
 ```bash
-source scripts/run.sh $CLOUD
+source scripts/server.sh deploy $CLOUD
+```
+
+### Starting the server
+```bash
+source scripts/server.sh start $CLOUD
+```
+
+### Testing the server
+```bash
+source scripts/server.sh test $CLOUD
 ```
 
 ## Cleanup Resources
