@@ -4,11 +4,11 @@ This codelab simulates scenarios where a startup CEO is trying to build a cloud-
 
 In this codelab, you will follow a step-by-step guide to experiment with state-of-the-art hardware like [Nvidia A100 GPU chips](https://www.nvidia.com/en-us/data-center/a100/), large language model like [Meta Llama 3.1](https://ai.meta.com/blog/meta-llama-3-1/), and software like [vLLM](https://github.com/vllm-project/vllm). You'll leverage cloud-native technologies like [Terraform](https://www.terraform.io/), [Docker](https://www.docker.com/), and [Linux Bash](https://www.gnu.org/software/bash/manual/bash.html) on major cloud providers such as [Azure](https://azure.microsoft.com/) and [AWS](https://aws.amazon.com/).
 
-## Guide
+# User Guide
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?repo=Azure-Samples/compete-labs)
 
-### Setup Tests
+## Setup Tests
 ```bash
 source scripts/init.sh
 ```
@@ -24,7 +24,7 @@ export CLOUD=azure
 export REGION=eastus2
 ```
 
-### Provision Resources
+## Provision Resources
 ```bash
 source scripts/resources.sh provision $CLOUD $REGION
 ```
@@ -40,9 +40,6 @@ source scripts/resources.sh cleanup $CLOUD $REGION
 ```
 
 ## Upload Results
-
-Calculate cost based on the hourly rate of VM SKU and total time spent, add add it to results.json using jq.
-
 ```bash
 source scripts/publish.sh $CLOUD
 ```
