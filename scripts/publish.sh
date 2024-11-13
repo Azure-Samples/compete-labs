@@ -13,7 +13,7 @@ publish_results() {
         --arg region "$TF_VAR_region" \
         '{provider: $provider, region: $region}')
 
-    steps="provision validate deploy start test destroy"
+    steps="provision validate deploy start test cleanup"
     for step in $steps; do
         status_var="${step^^}_STATUS"
         latency_var="${step^^}_LATENCY"
