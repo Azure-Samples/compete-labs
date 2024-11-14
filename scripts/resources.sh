@@ -24,22 +24,31 @@ set_aws_variables() {
     --output json)
 
   capacity_reservation_id=""
-  echo "$active_reservations" | jq -c '.[]' | while IFS= read -r reservation; do
+  # Read the active reservations into an array
+  IFS=$'\n' readarray -t reservations <<< "$(echo "$active_reservations" | jq -c '.[]')"
+
+  # Loop over each reservation in the array
+  for reservation in "${reservations[@]}"; do
     reservation_id=$(echo "$reservation" | jq -r '.ReservationId')
     available_count=$(echo "$reservation" | jq -r '.AvailableCount')
+    
+    # Debugging output for each reservation
     echo "Reservation ID: $reservation_id, Available Count: $available_count"
-    # Check if there are available instances
-    if [ $available_count -gt 0 ]; then
+    
+    if [ -n "$available_count" ] && [ "$available_count" -gt 0 ]; then
       capacity_reservation_id=$reservation_id
       echo "Capacity reservation with available instances found: $capacity_reservation_id"
       break
     fi
   done
 
+  # Debugging: Check the value of capacity_reservation_id before the final check
+  echo "Debug: capacity_reservation_id = '$capacity_reservation_id'"
+
   if [ -z "$capacity_reservation_id" ]; then
     echo -e "${RED}Error: No active capacity reservations with available instances found in $REGION${NC}"
-    exit 1
   fi
+
   export TF_VAR_capacity_reservation_id=$capacity_reservation_id
   export TF_VAR_zone_suffix="a"
 }
