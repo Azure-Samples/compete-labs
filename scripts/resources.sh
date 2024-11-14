@@ -31,19 +31,12 @@ set_aws_variables() {
   for reservation in "${reservations[@]}"; do
     reservation_id=$(echo "$reservation" | jq -r '.ReservationId')
     available_count=$(echo "$reservation" | jq -r '.AvailableCount')
-    
-    # Debugging output for each reservation
-    echo "Reservation ID: $reservation_id, Available Count: $available_count"
-    
+        
     if [ -n "$available_count" ] && [ "$available_count" -gt 0 ]; then
       capacity_reservation_id=$reservation_id
-      echo "Capacity reservation with available instances found: $capacity_reservation_id"
       break
     fi
   done
-
-  # Debugging: Check the value of capacity_reservation_id before the final check
-  echo "Debug: capacity_reservation_id = '$capacity_reservation_id'"
 
   if [ -z "$capacity_reservation_id" ]; then
     echo -e "${RED}Error: No active capacity reservations with available instances found in $REGION${NC}"
