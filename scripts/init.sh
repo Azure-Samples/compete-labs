@@ -43,6 +43,11 @@ else
     echo "Already logged in to Azure."
 fi
 
+# Unset variables with *_STATUS, *_LATENCY, *_ERROR pattern
+for var in $(compgen -v | grep -E '_STATUS$|_LATENCY$|_ERROR$'); do
+  unset $var
+done
+
 ssh_key_path=$(pwd)/private_key.pem
 TF_VAR_ssh_public_key="${ssh_key_path}.pub"
 export TF_VAR_ssh_public_key
