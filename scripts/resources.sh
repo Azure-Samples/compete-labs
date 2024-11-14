@@ -29,7 +29,7 @@ set_aws_variables() {
     available_count=$(echo "$reservation" | jq -r '.AvailableCount')
 
     # Check if there are available instances
-    if [ "$available_count" -gt 0 ]; then
+    if [ $available_count -gt 0 ]; then
       capacity_reservation_id=$reservation_id
       break
     fi
