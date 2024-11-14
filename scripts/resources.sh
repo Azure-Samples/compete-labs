@@ -34,7 +34,7 @@ set_aws_variables() {
     --query "CapacityReservations[0].[CapacityReservationId]" \
     --output text)
   if [ -z "$capacity_reservation_id" ]; then
-    echo "No active capacity reservation found in $REGION"
+    echo -e "${RED}No active capacity reservation found in $REGION${NC}"
     exit 1
   fi
   export TF_VAR_capacity_reservation_id=$capacity_reservation_id
@@ -53,14 +53,14 @@ provision_resources() {
   export PROVISION_LATENCY=$((end_time - start_time))
 
   if [[ $exit_code -eq 0 ]]; then
-    echo "Resources are provisioned successfully!"
+    echo -e "${GREEN}Resources are provisioned successfully!${NC}"
     export PROVISION_STATUS="Success"
   else
-    echo "Error: Failed to provision resources: $(cat $error_file)"
+    echo -e "${RED}Error: Failed to provision resources: $(cat $error_file)${NC}"
     export PROVISION_STATUS="Failure"
     export PROVISION_ERROR=$(cat $error_file)
   fi
-  echo "Provision status: $PROVISION_STATUS, Provision latency: $PROVISION_LATENCY seconds"
+  echo -e "${YELLOW}Provision status: $PROVISION_STATUS, Provision latency: $PROVISION_LATENCY seconds${NC}"
   popd
 }
 
@@ -75,15 +75,15 @@ cleanup_resources() {
   export CLEANUP_LATENCY=$((end_time - start_time))
 
   if [[ $exit_code -eq 0 ]]; then
-    echo "Resources are cleaned up successfully!"
+    echo -e "${GREEN}Resources are cleaned up successfully!${NC}"
     export CLEANUP_STATUS="Success"
   else
-    echo "Error: Failed to clean up resources: $(cat $error_file)"
+    echo -e "${RED}Error: Failed to clean up resources: $(cat $error_file)${NC}"
     export CLEANUP_STATUS="Failure"
     export CLEANUP_ERROR=$(cat $error_file)
   fi
   rm -f terraform.tfstate*
-  echo "Cleanup status: $CLEANUP_STATUS, Cleanup latency: $CLEANUP_LATENCY seconds"
+  echo -e "${YELLOW}Cleanup status: $CLEANUP_STATUS, Cleanup latency: $CLEANUP_LATENCY seconds${NC}"
   popd
 
   rm -f private_key.pem*

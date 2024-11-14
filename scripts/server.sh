@@ -24,7 +24,7 @@ get_public_ip_azure() {
         --query "[0].name" --output tsv)
     public_ip=$(az network public-ip show --resource-group "compete-labs-$TF_VAR_owner" \
         --name $public_ip_name --query "ipAddress" --output tsv)
-    echo "Public IP: $public_ip"
+    echo -e "${GREEN}Public IP: $public_ip${NC}"
     export PUBLIC_IP=$public_ip
 }
 
@@ -33,7 +33,7 @@ get_public_ip_aws() {
     public_ip=$(aws ec2 describe-instances --region $TF_VAR_region \
         --filters Name=tag:run_id,Values=${TF_VAR_run_id} Name=instance-state-name,Values=running \
         --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
-    echo "Public IP: $public_ip"
+    echo -e "${GREEN}Public IP: $public_ip${NC}"
     export PUBLIC_IP=$public_ip
 }
 
@@ -60,7 +60,7 @@ validate_resources() {
         run_ssh_command $SSH_KEY_PATH $USERNAME $PUBLIC_IP $SSH_PORT "$command" 2> $error_file
         local exit_code=$?
         if [[ $exit_code -eq 0 ]]; then
-            echo "Resources are validated successfully!"
+            echo -e "${GREEN}Resources are validated successfully!${NC}"
             export VALIDATE_STATUS="Success"
             export VALIDATE_LATENCY=$(($(date +%s) - $start_time))
             break
@@ -70,7 +70,7 @@ validate_resources() {
             export VALIDATE_STATUS="Failure"
             export VALIDATE_LATENCY=$(($(date +%s) - $start_time))
             export VALIDATE_ERROR=$(cat $error_file)
-            echo "Validating the resources failed with error: ${VALIDATE_ERROR}"
+            echo -e "${RED}Validating the resources failed with error: ${VALIDATE_ERROR}${NC}"
             break
         fi
 
@@ -78,7 +78,7 @@ validate_resources() {
         sleep $POLLING_INTERVAL
     done
 
-    echo "Validation status: $VALIDATE_STATUS, Validation latency: $VALIDATE_LATENCY seconds"
+    echo -e "${YELLOW}Validation status: $VALIDATE_STATUS, Validation latency: $VALIDATE_LATENCY seconds${NC}"
 }
 
 deploy_server() {
@@ -94,14 +94,14 @@ deploy_server() {
     export DEPLOY_LATENCY=$((end_time - start_time))
 
     if [[ $exit_code -eq 0 ]]; then
-        echo "Server is deployed successfully!"
+        echo -e "${GREEN}Server is deployed successfully!${NC}"
         export DEPLOY_STATUS="Success"
     else
         export DEPLOY_STATUS="Failure"
         export DEPLOY_ERROR=$(cat $error_file)
-        echo "Deploying the server failed with error: ${DEPLOY_ERROR}"
+        echo -e "${RED}Deploying the server failed with error: ${DEPLOY_ERROR}${NC}"
     fi
-    echo "Deploy status: $DEPLOY_STATUS, Deploy latency: $DEPLOY_LATENCY seconds"
+    echo -e "${YELLOW}Deploy status: $DEPLOY_STATUS, Deploy latency: $DEPLOY_LATENCY seconds${NC}"
 }
 
 start_server() {
@@ -131,7 +131,7 @@ start_server() {
     local exit_code=$?
 
     if [[ $exit_code -eq 0 ]]; then
-        echo "Container ID: $container_id"
+        echo -e "${GREEN}Container ID: $container_id${NC}"
         local log_command="sudo docker logs $container_id"
 
         while true; do
@@ -139,14 +139,14 @@ start_server() {
             response=$(run_ssh_command $SSH_KEY_PATH $USERNAME $PUBLIC_IP $SSH_PORT "$log_command" "-tt" 2> $error_file)
             echo "$response"
             if [[ $response == *"$complete_line"* ]]; then
-                echo "Server is started successfully!"
+                echo -e "${GREEN}Server is started successfully!${NC}"
                 export START_STATUS="Success"
                 export START_LATENCY=$(($(date +%s) - $start_time))
                 break
             fi
 
             if [[ $(date +%s) -gt $timeout_time ]]; then
-                echo "Timeout: Cannot start the server!"
+                echo -e "${RED}Timeout: Cannot start the server!${NC}"
                 export START_STATUS="Failure"
                 export START_LATENCY=$(($(date +%s) - $start_time))
                 echo "Checking container logs for more information..."
@@ -160,9 +160,9 @@ start_server() {
         export START_STATUS="Failure"
         export START_LATENCY=$(($(date +%s) - $start_time))
         export START_ERROR=$(cat $error_file)
-        echo "Starting the server failed with error: ${START_ERROR}"
+        echo -e "${RED}Starting the server failed with error: ${START_ERROR}${NC}"
     fi
-    echo "Start status: $START_STATUS, Start latency: $START_LATENCY seconds"
+    echo -e "${YELLOW}Start status: $START_STATUS, Start latency: $START_LATENCY seconds${NC}"
 }
 
 test_server() {
@@ -170,7 +170,7 @@ test_server() {
     echo "Checking server health endpoint at $health_endpoint ..."
     response=$(curl -s -o /dev/null -w "%{http_code}" $health_endpoint)
     if [ $response -eq 200 ]; then
-        echo "Server is healthy!"
+        echo -e "${GREEN}Server is healthy!${NC}"
 
         local completion_endpoint="http://${PUBLIC_IP}:80/v1/completions"
         local prompt="You are a helpful assistant. Tell me a joke."
@@ -192,26 +192,26 @@ test_server() {
         if [[ $exit_code -eq 0 ]]; then
             if [[ $status_code -eq 200 ]]; then
                 cat $response_file
-                echo "Server is tested successfully!"
+                echo -e "${GREEN}Server is tested successfully!${NC}"
                 export TEST_STATUS="Success"
             else
                 export TEST_STATUS="Failure"
                 export TEST_ERROR=$(cat $response_file)
-                echo "Testing the server failed with status code ${status_code} and response: ${TEST_ERROR}"
+                echo -e "${RED}Testing the server failed with status code ${status_code} and response: ${TEST_ERROR}${NC}"
             fi
         else
             export TEST_STATUS="Failure"
             export TEST_ERROR=$(cat $error_file)
-            echo "Testing the server failed with error: ${TEST_ERROR}"
+            echo -e "${RED}Testing the server failed with error: ${TEST_ERROR}${NC}"
         fi
     else
-        echo "Server is not healthy!"
+        echo -e "${RED}Server is not healthy!${NC}"
         export TEST_LATENCY=$((end_time - start_time))
         export TEST_STATUS="Failure"
         export TEST_ERROR="Server is not healthy!"
     fi
 
-    echo "Test status: $TEST_STATUS, Test latency: $TEST_LATENCY seconds"
+    echo -e "${YELLOW}Test status: $TEST_STATUS, Test latency: $TEST_LATENCY seconds${NC}"
 }
 
 # Main

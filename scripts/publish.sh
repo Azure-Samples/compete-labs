@@ -46,7 +46,9 @@ publish_results() {
 
     echo "Uploading the result file $result_file to the cloud storage..."
     az storage blob upload --account-name $storage_account --auth-mode login --overwrite \
-        --container-name $container_name --file $result_file --name "${TF_VAR_run_id}.json"
+        --container-name $container_name --file $result_file --name "${TF_VAR_run_id}-${PROVIDER}.json"
+    
+    echo -e "${GREEN}Congratulations $USER_ALIAS on completing the $PROVIDER section of Compete Lab!"
 }
 
 # Main
