@@ -27,10 +27,11 @@ set_aws_variables() {
   echo "$active_reservations" | jq -c '.[]' | while IFS= read -r reservation; do
     reservation_id=$(echo "$reservation" | jq -r '.ReservationId')
     available_count=$(echo "$reservation" | jq -r '.AvailableCount')
-
+    echo "Reservation ID: $reservation_id, Available Count: $available_count"
     # Check if there are available instances
     if [ $available_count -gt 0 ]; then
       capacity_reservation_id=$reservation_id
+      echo "Capacity reservation with available instances found: $capacity_reservation_id"
       break
     fi
   done
