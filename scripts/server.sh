@@ -132,7 +132,7 @@ start_server() {
 
     if [[ $exit_code -eq 0 ]]; then
         echo -e "${GREEN}Container ID: $container_id${NC}"
-        local log_command="sudo docker logs $container_id"
+        local log_command="sudo docker logs --tail 10 $container_id"
 
         while true; do
             echo "Checking the server logs..."
@@ -191,7 +191,8 @@ test_server() {
 
         if [[ $exit_code -eq 0 ]]; then
             if [[ $status_code -eq 200 ]]; then
-                cat $response_file
+                echo -e "Response:\n$(cat $response_file | jq -r '.choices[0].text')"
+                echo -e "Usage:\n$(cat $response_file | jq -r '.usage')"
                 echo -e "${GREEN}Server is tested successfully!${NC}"
                 export TEST_STATUS="Success"
             else

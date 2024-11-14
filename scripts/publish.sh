@@ -3,6 +3,8 @@
 source scripts/utils.sh
 
 PROVIDER=$1
+AWS_HOURLY_COST=32.7726
+AZURE_HOURLY_COST=14.69
 
 publish_results() {
     local result_file="/tmp/${TF_VAR_run_id}-result.json"
@@ -12,18 +14,23 @@ publish_results() {
         --arg provider "$PROVIDER" \
         --arg region "$TF_VAR_region" \
         '{provider: $provider, region: $region}')
+    local total_cost=0.0
 
     steps="provision validate deploy start test cleanup"
     for step in $steps; do
         status_var="${step^^}_STATUS"
         latency_var="${step^^}_LATENCY"
         error_var="${step^^}_ERROR"
+        cost_var="${PROVIDER^^}_HOURLY_COST"
+        cost=$(printf "%.4f" $(echo "scale=4; ${!cost_var} * ${!latency_var} / 3600" | bc -l))
+        total_cost=$(echo "scale=4; $total_cost + $cost" | bc -l)
 
         eval "step_info=\$(jq -n \
             --arg status \"\${!status_var}\" \
             --arg latency \"\${!latency_var}\" \
             --arg error \"\${!error_var}\" \
-            '{status: \$status, latency: \$latency, error: \$error}')"
+            --arg cost \"$cost\" \
+            '{status: \$status, latency: \$latency, error: \$error, cost_in_usd: \$cost}')"
         echo "Processed step $step: $step_info"
 
         result=$(jq -n \
@@ -43,6 +50,30 @@ publish_results() {
             }')
         echo $result >> $result_file
     done
+
+    # One entry for total cost
+    step_info=$(jq -n \
+        --arg total_cost "$total_cost" \
+        '{
+            cost_in_usd: $total_cost
+        }')
+    echo "Processed total cost: $step_info"
+    result=$(jq -n \
+            --arg timestamp "$(date +%s)" \
+            --arg run_id "$TF_VAR_run_id" \
+            --arg owner "$USER_ALIAS" \
+            --arg cloud_info "$cloud_info" \
+            --arg step "summary" \
+            --arg step_info "$step_info" \
+            '{
+                timestamp: $timestamp,
+                run_id: $run_id,
+                owner: $owner,
+                cloud_info: $cloud_info,
+                step: $step,
+                result: $step_info
+            }')
+    echo $result >> $result_file
 
     echo "Uploading the result file $result_file to the cloud storage..."
     az storage blob upload --account-name $storage_account --auth-mode login --overwrite \
