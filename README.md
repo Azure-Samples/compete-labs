@@ -6,25 +6,36 @@ In this codelab, you will follow a step-by-step guide to experiment with state-o
 
 # User Guide
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?repo=Azure-Samples/compete-labs)
+[![Open in Azure Cloud Shell](https://img.shields.io/badge/Azure%20Cloud%20Shell-Open-blue?logo=microsoft-azure)](https://shell.azure.com/bash?command=git%20clone%20YOUR_REPO_URL%3B%20cd%20YOUR_REPO_NAME)
+
 
 ## Setup Tests
+Once the cloud shell is ready, clone the repository and enter the directory:
+```bash
+git clone https://github.com/Azure-Samples/compete-labs
+cd compete-labs
+```
+
+Install dependencies, authenticate, and initialize environments by running the commands below:
 ```bash
 source scripts/init.sh
 ```
 
-### Set AWS Cloud Variable
-```bash
-export CLOUD=aws
-export REGION=us-west-2
-```
-### Set AZURE Cloud Variable
+### For Azure
 ```bash
 export CLOUD=azure
 export REGION=eastus2
 ```
 
+### For AWS
+```bash
+export CLOUD=aws
+export REGION=us-west-2
+```
+
+
 ## Provision Resources
+Provision infrastructure resources like GPU Virtual Machine:
 ```bash
 source scripts/resources.sh provision $CLOUD $REGION
 ```
@@ -32,26 +43,32 @@ source scripts/resources.sh provision $CLOUD $REGION
 ## Running Tests
 
 ### Deploying the server
+Deploy the vLLM-backed large language model inference server using Docker:
 ```bash
 source scripts/server.sh deploy $CLOUD
 ```
 
 ### Starting the server
+Download the Llama 3 8B model from Hugging Face, load it into the GPUs, and start the HTTP server:
 ```bash
 source scripts/server.sh start $CLOUD
 ```
 
 ### Testing the server
+Send some prompt requests to the HTTP server to test chat completion:
 ```bash
 source scripts/server.sh test $CLOUD
 ```
 
 ## Cleanup Resources
+Cleanup infrastructure resources like GPU Virtual Machine:
 ```bash
 source scripts/resources.sh cleanup $CLOUD $REGION
 ```
 
-## Upload Results
+## Publish Results
+Collect and upload test results to Azure Data Explorer
 ```bash
 source scripts/publish.sh $CLOUD
 ```
+Check out aggregated and visualized test results on the [dashboard](https://dataexplorer.azure.com/dashboards/8a3e24d9-2907-40c3-a1ac-310ef4aeb608)
