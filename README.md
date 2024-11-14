@@ -6,7 +6,7 @@ In this codelab, you will follow a step-by-step guide to experiment with state-o
 
 # User Guide
 
-[![Open in Azure Cloud Shell](https://img.shields.io/badge/Azure%20Cloud%20Shell-Open-blue?logo=microsoft-azure)](https://shell.azure.com/bash?command=git%20clone%20YOUR_REPO_URL%3B%20cd%20YOUR_REPO_NAME)
+[![Open in Azure Cloud Shell](https://img.shields.io/badge/Azure%20Cloud%20Shell-Open-blue?logo=microsoft-azure)](https://ms.portal.azure.com/#cloudshell/)
 
 
 ## Setup Tests
