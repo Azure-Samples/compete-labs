@@ -43,7 +43,7 @@ source scripts/resources.sh provision $CLOUD $REGION
 ## Running Tests
 
 ### Deploying the server
-Deploy the vLLM-backed large language model inference server using Docker:
+Deploy the LLM-backed inferencing server using Docker:
 ```bash
 source scripts/server.sh deploy $CLOUD
 ```
@@ -55,7 +55,7 @@ source scripts/server.sh start $CLOUD
 ```
 
 ### Testing the server
-Send some prompt requests to the HTTP server to test chat completion:
+Send some prompt requests to the HTTP server to test chat completion endpoint:
 ```bash
 source scripts/server.sh test $CLOUD
 ```
