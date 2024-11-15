@@ -18,10 +18,10 @@ publish_results() {
 
     steps="provision validate deploy start test cleanup"
     for step in $steps; do
-        status_var="${step^^}_STATUS"
-        latency_var="${step^^}_LATENCY"
-        error_var="${step^^}_ERROR"
-        cost_var="${PROVIDER^^}_HOURLY_COST"
+        status_var=$(echo "${step}_STATUS" | tr '[:lower:]' '[:upper:]')
+        latency_var=$(echo "${step}_LATENCY" | tr '[:lower:]' '[:upper:]')
+        error_var=$(echo "${step}_ERROR" | tr '[:lower:]' '[:upper:]')
+        cost_var=$(echo "${PROVIDER}_HOURLY_COST" | tr '[:lower:]' '[:upper:]')
         cost=$(printf "%.4f" $(echo "scale=4; ${!cost_var} * ${!latency_var} / 3600" | bc -l))
         total_cost=$(echo "scale=4; $total_cost + $cost" | bc -l)
 
@@ -78,7 +78,7 @@ publish_results() {
     echo "Uploading the result file $result_file to the cloud storage..."
     az storage blob upload --account-name $storage_account --auth-mode login --overwrite \
         --container-name $container_name --file $result_file --name "${TF_VAR_run_id}-${PROVIDER}.json"
-    
+
     echo -e "${GREEN}Congratulations $USER_ALIAS on completing the $PROVIDER section of Compete Lab!"
 }
 
