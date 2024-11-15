@@ -8,6 +8,42 @@ In this codelab, you will follow a step-by-step guide to experiment with state-o
 
 [![Open in Azure Cloud Shell](https://img.shields.io/badge/Azure%20Cloud%20Shell-Open-blue?logo=microsoft-azure)](https://ms.portal.azure.com/#cloudshell/)
 
+### Persist Cloud Shell data to avoid accidental closure (Optional - Skip to [Setup Tests](#setup-tests))
+
+#### Reset User Settings
+
+* If this is your first time using Cloud Shell, skip to [here](#set-up-storage-account)
+* If you already set up Cloud Shell without Storage Account, reset your user settings by choosing **Settings** in the top panel. Next, choose **Reset User Settings**
+
+![Reset user settings](docs/img/reset.png)
+
+* Click **Reset** to confirm
+
+![Confirm reset](docs/img/reset_confirm.png)
+
+#### Set Up Storage Account
+
+* Choose **Bash** as shell mode
+
+![Choose Bash](docs/img/choose_shell.png)
+
+* Next, choose **Mount storage account** and search for **Cloud Compete Testing** under *Storage account subscription*
+
+![Choose storage](docs/img/choose_storage.png)
+
+* Then choose **Select existing storage account** and click **Next**
+
+![Choose existing storage](docs/img/confirm_existing.png)
+
+* Fill in the *Resource group* with **compete-labs** and *Storage account name* with **akstelescopecompetelabs**
+* In *File share* section, choose **Create a file share** and type your name or useralias under *Name* and click *Ok*
+* Once all information is filled in, click **Select** and wait for CloudShell session to be open
+
+![Fill in information](docs/img/fill_in.png)
+
+* Once CloudShell is ready, you can run `ls` command and look for `clouddrive` folder to confirm that storage account is successfully mounted
+
+![Confirm clouddrive](docs/img/confirm_clouddrive.png)
 
 ## Setup Tests
 Once the cloud shell is ready, clone the repository and enter the directory:
