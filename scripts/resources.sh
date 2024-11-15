@@ -17,33 +17,12 @@ CLOUD=$2
 set_aws_variables() {
   REGION=${3:-us-west-2}
   export TF_VAR_region=$REGION
-  active_reservations=$(aws ec2 describe-capacity-reservations \
+
+  capacity_reservation_id=$(aws ec2 describe-capacity-reservations \
     --region $REGION \
     --filters Name=state,Values=active \
     --query "CapacityReservations[*].{ReservationId:CapacityReservationId, AvailableCount:AvailableInstanceCount}" \
-    --output json)
-
-    reservations=()
-    while IFS= read -r reservation; do
-      reservations+=("$reservation")
-    done < <(echo "$active_reservations" | jq -c '.[]')
-
-    capacity_reservation_id=""
-    for reservation in "${reservations[@]}"; do
-      reservation_id=$(echo "$reservation" | jq -r '.ReservationId')
-      available_count=$(echo "$reservation" | jq -r '.AvailableCount')
-
-      if [ -n "$available_count" ] && [ "$available_count" -gt 0 ]; then
-        capacity_reservation_id=$reservation_id
-        break
-      fi
-    done
-
-    if [ -z "$capacity_reservation_id" ]; then
-      echo -e "${RED}Error: No active capacity reservations with available instances found in $REGION${NC}"
-    fi
-  done
-
+    --output json | jq -r '.[] | select(.AvailableCount > 0) | .ReservationId')
   if [ -z "$capacity_reservation_id" ]; then
     active_reservations=$(aws ec2 describe-capacity-reservations \
       --region $REGION \
