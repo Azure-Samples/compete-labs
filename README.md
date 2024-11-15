@@ -8,6 +8,42 @@ In this codelab, you will follow a step-by-step guide to experiment with state-o
 
 [![Open in Azure Cloud Shell](https://img.shields.io/badge/Azure%20Cloud%20Shell-Open-blue?logo=microsoft-azure)](https://ms.portal.azure.com/#cloudshell/)
 
+### Persist Cloud Shell data to avoid accidental closure (Optional - Skip to [Setup Tests](#setup-tests))
+
+#### Reset User Settings
+
+* If this is your first time using Cloud Shell, skip to [here](#set-up-storage-account)
+* If you already set up Cloud Shell without Storage Account, reset your user settings by choosing **Settings** in the top panel. Next, choose **Reset User Settings**
+
+<img src="docs/img/reset.png" alt="Reset user settings" width="960" height="600">
+
+* Click **Reset** to confirm
+
+<img src="docs/img/reset_confirm.png" alt="Confirm reset" width="960" height="600">
+
+#### Set Up Storage Account
+
+* Choose **Bash** as shell mode
+
+<img src="docs/img/choose_shell.png" alt="Choose Bash" width="960" height="600">
+
+* Next, choose **Mount storage account** and search for **Cloud Compete Testing** under *Storage account subscription*
+
+<img src="docs/img/choose_storage.png" alt="Choose storage" width="960" height="600">
+
+* Then choose **Select existing storage account** and click **Next**
+
+<img src="docs/img/confirm_existing.png" alt="Choose existing storage" width="960" height="600">
+
+* Fill in the *Resource group* with **compete-labs** and *Storage account name* with **akstelescopecompetelabs**
+* In *File share* section, choose **Create a file share** and type your name or useralias under *Name* and click *Ok*
+* Once all information is filled in, click **Select** and wait for CloudShell session to be open
+
+<img src="docs/img/fill_in.png" alt="ill in information" width="960" height="600">
+
+* Once CloudShell is ready, you can run `ls` command and look for `clouddrive` folder to confirm that storage account is successfully mounted
+
+<img src="docs/img/confirm_clouddrive.png" alt="Confirm clouddrive" width="960" height="600">
 
 ## Setup Tests
 Once the cloud shell is ready, clone the repository and enter the directory:
