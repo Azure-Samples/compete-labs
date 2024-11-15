@@ -22,8 +22,8 @@ publish_results() {
         latency_var=$(echo "${step}_LATENCY" | tr '[:lower:]' '[:upper:]')
         error_var=$(echo "${step}_ERROR" | tr '[:lower:]' '[:upper:]')
         cost_var=$(echo "${PROVIDER}_HOURLY_COST" | tr '[:lower:]' '[:upper:]')
-        cost=$(printf "%.4f" $(echo "scale=4; ${!cost_var} * ${!latency_var} / 3600" | bc -l))
-        total_cost=$(echo "scale=4; $total_cost + $cost" | bc -l)
+        cost=$(awk "BEGIN {printf \"%.4f\", ${!cost_var} * ${!latency_var} / 3600}")
+        total_cost=$(awk "BEGIN {printf \"%.4f\", $total_cost + $cost}")
 
         eval "step_info=\$(jq -n \
             --arg status \"\${!status_var}\" \
