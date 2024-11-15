@@ -6,8 +6,7 @@ In this codelab, you will follow a step-by-step guide to experiment with state-o
 
 # User Guide
 
-* This lab can be run on MacOS or Ubuntu
-* If you have neither, you can leverage Azure Cloud Shell 
+* Bash Shell is required, Azure Cloud Shell with storage account is recommended, alternatively can also run MacOS or Ubuntu locally
 
 [![Open in Azure Cloud Shell](https://img.shields.io/badge/Azure%20Cloud%20Shell-Open-blue?logo=microsoft-azure)](https://ms.portal.azure.com/#cloudshell/)
 
