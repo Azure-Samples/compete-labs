@@ -51,7 +51,8 @@ run_ssh_command() {
 
 validate_resources() {
     local command="nvidia-smi"
-    local error_file="/tmp/${TF_VAR_run_id}-validate_resources-error.txt"
+    local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/validate_resources-error.txt"
+    mkdir -p "$(dirname "$error_file")"
 
     echo "Validating the resources..."
     start_time=$(date +%s)
@@ -79,12 +80,14 @@ validate_resources() {
     done
 
     echo -e "${YELLOW}Validation status: $VALIDATE_STATUS, Validation latency: $VALIDATE_LATENCY seconds${NC}"
+    publish_results "validate" $CLOUD
 }
 
 deploy_server() {
     local model="vllm/vllm-openai:v0.6.3.post1"
     local command="sudo docker pull $model"
-    local error_file="/tmp/${TF_VAR_run_id}-deploy_server-error.txt"
+    local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/deploy_server-error.txt"
+    mkdir -p "$(dirname "$error_file")"
 
     echo "Deploying the server with model ${model}..."
     start_time=$(date +%s)
@@ -102,6 +105,7 @@ deploy_server() {
         echo -e "${RED}Deploying the server failed with error: ${DEPLOY_ERROR}${NC}"
     fi
     echo -e "${YELLOW}Deploy status: $DEPLOY_STATUS, Deploy latency: $DEPLOY_LATENCY seconds${NC}"
+    publish_results "deploy" $CLOUD
 }
 
 start_server() {
@@ -121,7 +125,8 @@ start_server() {
         --model meta-llama/Meta-Llama-3.1-8B \
         --max_model_len 10000 \
         --port 80"
-    local error_file="/tmp/${TF_VAR_run_id}-start_server-error.txt"
+    local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/start_server-error.txt"
+    mkdir -p "$(dirname "$error_file")"
     local complete_line="Application startup complete"
 
     echo "Starting the server..."
@@ -163,6 +168,7 @@ start_server() {
         echo -e "${RED}Starting the server failed with error: ${START_ERROR}${NC}"
     fi
     echo -e "${YELLOW}Start status: $START_STATUS, Start latency: $START_LATENCY seconds${NC}"
+    publish_results "start" $CLOUD
 }
 
 test_server() {
@@ -223,6 +229,7 @@ test_server() {
     fi
 
     echo -e "${YELLOW}Test status: $TEST_STATUS, Test latency: $TEST_LATENCY seconds${NC}"
+    publish_results "test" $CLOUD
 }
 
 # Main

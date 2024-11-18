@@ -34,7 +34,8 @@ set_aws_variables() {
 }
 
 provision_resources() {
-  local error_file="/tmp/${TF_VAR_run_id}-provision-error.txt"
+  local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/provision-error.txt"
+  mkdir -p "$(dirname "$error_file")"
   pushd modules/terraform/$CLOUD
   terraform init
   echo "Provisioning resources in $CLOUD..."
@@ -53,11 +54,13 @@ provision_resources() {
     export PROVISION_ERROR=$(cat $error_file)
   fi
   echo -e "${YELLOW}Provision status: $PROVISION_STATUS, Provision latency: $PROVISION_LATENCY seconds${NC}"
+  publish_results "provision" $CLOUD
   popd
 }
 
 cleanup_resources() {
-  local error_file="/tmp/${TF_VAR_run_id}-cleanup-error.txt"
+  local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/cleanup-error.txt"
+  mkdir -p "$(dirname "$error_file")"
   pushd modules/terraform/$CLOUD
   echo "Cleaning up resources in $CLOUD..."
 
@@ -84,6 +87,7 @@ cleanup_resources() {
     rm -f terraform.tfstate*
     echo -e "${YELLOW}Cleanup status: $CLEANUP_STATUS, Cleanup latency: $CLEANUP_LATENCY seconds${NC}"
   fi
+  publish_results "cleanup" $CLOUD
   popd
 }
 
@@ -185,6 +189,7 @@ cleanup_resources_using_cli() {
       export CLEANUP_ERROR=$(cat $error_file)
     fi
   fi
+  publish_results "cleanup" $CLOUD
 }
 
 
@@ -211,17 +216,25 @@ check_for_existing_resources() {
         --query "Reservations[*].Instances[*].CapacityReservationId" \
         --output json | jq -r '.[0][0]')
       export TF_VAR_capacity_reservation_id=$reservation_id
+      run_id=$(aws ec2 describe-instances \
+        --region $region \
+        --instance-ids $instance_id \
+        --query "Reservations[*].Instances[*].Tags[?Key=='run_id'].Value" \
+        --output json | jq -r '.[0][0][0]')
+      export TF_VAR_run_id=$run_id
     fi
   elif [ "$cloud" == "azure" ]; then
     # Get VM under the resource group with owner tag
-    local instance_name=$(az resource list \
+    resource_group_name=$(az resource list \
       --tag owner=$TF_VAR_owner \
       --query "[?type=='Microsoft.Compute/virtualMachines'].resourceGroup" \
       --output tsv)
 
-    if [ -n "$instance_name" ]; then
-      echo -e "${YELLOW}Error: VM already exist with owner $TF_VAR_owner ${NC}"
+    if [ -n "$resource_group_name" ]; then
+      echo -e "${YELLOW}Warning: VM already exist with owner $TF_VAR_owner ${NC}"
       resources_exist=true
+      run_id=$(az group show --name  $resource_group_name --query "tags.run_id" -o tsv)
+      export TF_VAR_run_id=$run_id      
     fi
   fi
 }
@@ -238,6 +251,8 @@ case $ACTION in
     if [ "$resources_exist" == true ]; then
       echo -e "${YELLOW}Please proceed with running tests${NC}"
     else
+      RUN_ID=$(uuidgen)
+      export TF_VAR_run_id=$RUN_ID
       confirm "provision_resources"
       provision_resources
     fi
