@@ -1,5 +1,7 @@
 #!/bin/bash
 
+AWS_HOURLY_COST=32.7726
+AZURE_HOURLY_COST=14.69
 # Function to prompt user for confirmation
 confirm() {
     while true; do
@@ -18,8 +20,6 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 publish_results() {
-  AWS_HOURLY_COST=32.7726
-  AZURE_HOURLY_COST=14.69
   local step=$1
   local PROVIDER=$2
   local result_file="/tmp/${TF_VAR_run_id}-${PROVIDER}-result.json"
