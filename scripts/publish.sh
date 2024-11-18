@@ -14,9 +14,6 @@ publish_results_to_storage_account() {
       --container-name $container_name --file $result_file --name "${TF_VAR_run_id}-${PROVIDER}.json"
 
   echo -e "${GREEN}Congratulations $USER_ALIAS on completing the $PROVIDER section of Compete Lab!"
-
-  rm -rf $result_file
-  rm -rf /tmp/${TF_VAR_run_id}
 }
 
 # Main
