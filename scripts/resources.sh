@@ -220,7 +220,7 @@ check_for_existing_resources() {
         --region $region \
         --instance-ids $instance_id \
         --query "Reservations[*].Instances[*].Tags[?Key=='run_id'].Value" \
-        --output json | jq -r '.[0][0]')
+        --output json | jq -r '.[0][0][0]')
       export TF_VAR_run_id=$run_id
     fi
   elif [ "$cloud" == "azure" ]; then
