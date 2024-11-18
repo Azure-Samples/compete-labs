@@ -4,13 +4,16 @@ This codelab simulates scenarios where a startup CEO is trying to build a cloud-
 
 In this codelab, you will follow a step-by-step guide to experiment with state-of-the-art hardware like [Nvidia A100 GPU chips](https://www.nvidia.com/en-us/data-center/a100/), large language model like [Meta Llama 3.1](https://ai.meta.com/blog/meta-llama-3-1/), and software like [vLLM](https://github.com/vllm-project/vllm). You'll leverage cloud-native technologies like [Terraform](https://www.terraform.io/), [Docker](https://www.docker.com/), and [Linux Bash](https://www.gnu.org/software/bash/manual/bash.html) on major cloud providers such as [Azure](https://azure.microsoft.com/) and [AWS](https://aws.amazon.com/).
 
-# User Guide
+![Dashboard](docs/img/dashboard.png)
 
-* Bash Shell is required, Azure Cloud Shell with storage account is recommended, alternatively can also run MacOS or Ubuntu locally
+# Prerequisites
+
+* Bash (Unix shell) is required to execute commands in this codelab.
+* Azure Cloud Shell is recommended. (*Note*: It is also highly recommended to mount a storage account in case of accidental browser closure. Follow instructions [here](/docs/mount_storage_account_on_cloud_shell.md)) Alternatively, macOS and Ubuntu are supported.
+
+# Steps
 
 [![Open in Azure Cloud Shell](https://img.shields.io/badge/Azure%20Cloud%20Shell-Open-blue?logo=microsoft-azure)](https://ms.portal.azure.com/#cloudshell/)
-
-*Note*: If you want to persist your Cloud Shell data in case of accidental browser closure, follow this [guide](/docs/mount_storage_account_on_cloud_shell.md)
 
 ## Setup Tests
 In your lab environment, clone the repository and enter the directory:
