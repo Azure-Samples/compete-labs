@@ -51,7 +51,7 @@ run_ssh_command() {
 
 validate_resources() {
     local command="nvidia-smi"
-    local error_file="/tmp/${TF_VAR_run_id}-validate_resources-error.txt"
+    local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/validate_resources-error.txt"
 
     echo "Validating the resources..."
     start_time=$(date +%s)
@@ -85,7 +85,7 @@ validate_resources() {
 deploy_server() {
     local model="vllm/vllm-openai:v0.6.3.post1"
     local command="sudo docker pull $model"
-    local error_file="/tmp/${TF_VAR_run_id}-deploy_server-error.txt"
+    local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/deploy_server-error.txt"
 
     echo "Deploying the server with model ${model}..."
     start_time=$(date +%s)
@@ -123,7 +123,7 @@ start_server() {
         --model meta-llama/Meta-Llama-3.1-8B \
         --max_model_len 10000 \
         --port 80"
-    local error_file="/tmp/${TF_VAR_run_id}-start_server-error.txt"
+    local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/start_server-error.txt"
     local complete_line="Application startup complete"
 
     echo "Starting the server..."
@@ -178,8 +178,8 @@ test_server() {
         local completion_endpoint="http://${PUBLIC_IP}:80/v1/completions"
         local prompt="You are a helpful assistant. Tell me a joke."
         local data="{\"model\": \"meta-llama/Meta-Llama-3.1-8B\", \"prompt\": \"$prompt\", \"temperature\": 0.7, \"top_k\": -1, \"max_tokens\": 9900}"
-        local error_file="/tmp/${TF_VAR_run_id}-test_server-error.txt"
-        local response_file="/tmp/${TF_VAR_run_id}-test_server-response.txt"
+        local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/test_server-error.txt"
+        local response_file="/tmp/${TF_VAR_run_id}/${CLOUD}/test_server-response.txt"
 
         echo "Testing the server with request data $data ..."
         start_time=$(date +%s)

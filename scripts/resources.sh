@@ -34,7 +34,7 @@ set_aws_variables() {
 }
 
 provision_resources() {
-  local error_file="/tmp/${TF_VAR_run_id}-provision-error.txt"
+  local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/provision-error.txt"
   pushd modules/terraform/$CLOUD
   terraform init
   echo "Provisioning resources in $CLOUD..."
@@ -58,7 +58,7 @@ provision_resources() {
 }
 
 cleanup_resources() {
-  local error_file="/tmp/${TF_VAR_run_id}-cleanup-error.txt"
+  local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/cleanup-error.txt"
   pushd modules/terraform/$CLOUD
   echo "Cleaning up resources in $CLOUD..."
 

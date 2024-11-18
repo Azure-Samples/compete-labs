@@ -22,7 +22,7 @@ publish_results() {
   AZURE_HOURLY_COST=14.69
   local step=$1
   local PROVIDER=$2
-  local result_file="/tmp/${TF_VAR_run_id}-${USER_ALIAS}-result.json"
+  local result_file="/tmp/${USER_ALIAS}-result.json"
   export result_file
   local cloud_info=$(jq -n \
       --arg provider "$PROVIDER" \

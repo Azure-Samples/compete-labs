@@ -72,6 +72,6 @@ source scripts/resources.sh cleanup $CLOUD $REGION
 ## Publish Results
 Collect and upload test results to Azure Data Explorer
 ```bash
-source scripts/publish.sh
+source scripts/publish.sh $CLOUD
 ```
 Check out aggregated and visualized test results on the [dashboard](https://dataexplorer.azure.com/dashboards/8a3e24d9-2907-40c3-a1ac-310ef4aeb608)
