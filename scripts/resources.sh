@@ -170,7 +170,20 @@ cleanup_resources_using_cli() {
       export CLEANUP_STATUS="Success"
     fi
   elif [ "$CLOUD" == "azure" ]; then
+    echo "Deleting resource group: compete-labs-$TF_VAR_owner"
+    start_time=$(date +%s)
     az group delete --name "compete-labs-$TF_VAR_owner" --yes
+    local exit_code=$?
+    end_time=$(date +%s)
+    export CLEANUP_LATENCY=$((end_time - start_time))
+    if [[ $exit_code -eq 0 ]]; then
+      echo -e "${GREEN}Resources are cleaned up successfully!${NC}"
+      export CLEANUP_STATUS="Success"
+    else
+      echo -e "${RED}Error: Failed to clean up resources: $(cat $error_file)${NC}"
+      export CLEANUP_STATUS="Failure"
+      export CLEANUP_ERROR=$(cat $error_file)
+    fi
   fi
 }
 
