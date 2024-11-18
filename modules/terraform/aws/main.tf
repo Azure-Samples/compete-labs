@@ -1,7 +1,7 @@
 locals {
   tags = {
     "Name"              = "compete-labs-${var.owner}"
-    "deletion_due_time" = timeadd(timestamp(), "8h")
+    "deletion_due_time" = timeadd(plantimestamp(), "8h")
     "owner"             = var.owner
     "run_id"            = var.run_id
   }
@@ -114,5 +114,9 @@ resource "aws_instance" "vm" {
     capacity_reservation_target {
       capacity_reservation_id = var.capacity_reservation_id
     }
+  }
+
+  tags = {
+    capacity_reservation_id = var.capacity_reservation_id
   }
 }
