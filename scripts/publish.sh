@@ -2,11 +2,7 @@
 
 source scripts/utils.sh
 
-PROVIDER=$1
-AWS_HOURLY_COST=32.7726
-AZURE_HOURLY_COST=14.69
-
-publish_results() {    
+publish_results_to_storage_account() {    
     local storage_account="akstelescope"
     local container_name="compete-labs"
 
@@ -18,5 +14,5 @@ publish_results() {
 }
 
 # Main
-confirm "publish_results"
-publish_results
+confirm "publish_results_to_storage_account"
+publish_results_to_storage_account

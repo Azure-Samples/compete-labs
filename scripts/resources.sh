@@ -53,7 +53,7 @@ provision_resources() {
     export PROVISION_ERROR=$(cat $error_file)
   fi
   echo -e "${YELLOW}Provision status: $PROVISION_STATUS, Provision latency: $PROVISION_LATENCY seconds${NC}"
-  publish_results "provision"
+  publish_results "provision" $CLOUD
   popd
 }
 
@@ -85,7 +85,7 @@ cleanup_resources() {
     rm -f terraform.tfstate*
     echo -e "${YELLOW}Cleanup status: $CLEANUP_STATUS, Cleanup latency: $CLEANUP_LATENCY seconds${NC}"
   fi
-  publish_results "cleanup"
+  publish_results "cleanup" $CLOUD
   popd
 }
 
@@ -187,7 +187,7 @@ cleanup_resources_using_cli() {
       export CLEANUP_ERROR=$(cat $error_file)
     fi
   fi
-  publish_results "cleanup"
+  publish_results "cleanup" $CLOUD
 }
 
 

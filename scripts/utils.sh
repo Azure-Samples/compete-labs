@@ -17,23 +17,23 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-
 publish_results() {
+  AWS_HOURLY_COST=32.7726
+  AZURE_HOURLY_COST=14.69
   local step=$1
+  local PROVIDER=$2
   local result_file="/tmp/${TF_VAR_run_id}-${USER_ALIAS}-result.json"
   export result_file
   local cloud_info=$(jq -n \
       --arg provider "$PROVIDER" \
       --arg region "$TF_VAR_region" \
       '{provider: $provider, region: $region}')
-  local total_cost=0.0
 
   status_var=$(echo "${step}_STATUS" | tr '[:lower:]' '[:upper:]')
   latency_var=$(echo "${step}_LATENCY" | tr '[:lower:]' '[:upper:]')
   error_var=$(echo "${step}_ERROR" | tr '[:lower:]' '[:upper:]')
   cost_var=$(echo "${PROVIDER}_HOURLY_COST" | tr '[:lower:]' '[:upper:]')
   cost=$(awk "BEGIN {printf \"%.4f\", ${!cost_var} * ${!latency_var} / 3600}")
-  total_cost=$(awk "BEGIN {printf \"%.4f\", $total_cost + $cost}")
 
   eval "step_info=\$(jq -n \
       --arg status \"\${!status_var}\" \
