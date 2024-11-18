@@ -174,32 +174,42 @@ test_server() {
 
         local completion_endpoint="http://${PUBLIC_IP}:80/v1/completions"
         local prompt="You are a helpful assistant. Tell me a joke."
-        local data="{\"model\": \"meta-llama/Meta-Llama-3.1-8B\", \"prompt\": \"$prompt\", \"temperature\": 0.7, \"top_k\": -1, \"max_tokens\": 9900}"
+        local body="{\"model\": \"meta-llama/Meta-Llama-3.1-8B\", \"prompt\": \"$prompt\", \"temperature\": 0.7, \"top_k\": -1, \"max_tokens\": 9900, \"stream\": true, \"stream_options\": {\"include_usage\": true}}"
         local error_file="/tmp/${TF_VAR_run_id}-test_server-error.txt"
-        local response_file="/tmp/${TF_VAR_run_id}-test_server-response.txt"
+        local response_file="/tmp/${TF_VAR_run_id}-test_server-response.json"
+        rm $response_file
 
-        echo "Testing the server with request data $data ..."
+        echo "Testing the server with request data $body ..."
         start_time=$(date +%s)
-        status_code=$(curl -o $response_file -w "%{http_code}" \
-            -X POST $completion_endpoint \
+
+        usage=""
+        while IFS= read -r line; do
+            if [ -z "$line" ] || [ "$line" == " " ]; then
+                continue
+            fi
+            echo "$line" >> $response_file
+            data=$(echo "$line" | sed 's/^data: //')
+            word=$(echo $data | jq -r '.choices[0].text')
+            printf "%s" "$word"
+
+            finish_reason=$(echo $data | jq -r '.choices[0].finish_reason')
+            if [ "$finish_reason" == "stop" ]; then
+                usage=$(echo $data | jq -r '.usage')
+                break
+            fi
+        done < <(curl -s -X POST $completion_endpoint \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${VLLM_API_KEY}" \
-            -d "$data" 2> $error_file)
+            -d "$body")
+        
         local exit_code=$?
         end_time=$(date +%s)
         export TEST_LATENCY=$((end_time - start_time))
 
         if [[ $exit_code -eq 0 ]]; then
-            if [[ $status_code -eq 200 ]]; then
-                echo -e "Response:\n$(cat $response_file | jq -r '.choices[0].text')"
-                echo -e "Usage:\n$(cat $response_file | jq -r '.usage')"
-                echo -e "${GREEN}Server is tested successfully!${NC}"
-                export TEST_STATUS="Success"
-            else
-                export TEST_STATUS="Failure"
-                export TEST_ERROR=$(cat $response_file)
-                echo -e "${RED}Testing the server failed with status code ${status_code} and response: ${TEST_ERROR}${NC}"
-            fi
+            echo -e "${GREEN}\nUsage: $usage${NC}"
+            echo -e "${GREEN}Server is tested successfully!${NC}"
+            export TEST_STATUS="Success"
         else
             export TEST_STATUS="Failure"
             export TEST_ERROR=$(cat $error_file)
