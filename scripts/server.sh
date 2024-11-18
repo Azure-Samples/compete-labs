@@ -52,6 +52,7 @@ run_ssh_command() {
 validate_resources() {
     local command="nvidia-smi"
     local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/validate_resources-error.txt"
+    mkdir -p "$(dirname "$error_file")"
 
     echo "Validating the resources..."
     start_time=$(date +%s)
@@ -86,6 +87,7 @@ deploy_server() {
     local model="vllm/vllm-openai:v0.6.3.post1"
     local command="sudo docker pull $model"
     local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/deploy_server-error.txt"
+    mkdir -p "$(dirname "$error_file")"
 
     echo "Deploying the server with model ${model}..."
     start_time=$(date +%s)
@@ -124,6 +126,7 @@ start_server() {
         --max_model_len 10000 \
         --port 80"
     local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/start_server-error.txt"
+    mkdir -p "$(dirname "$error_file")"
     local complete_line="Application startup complete"
 
     echo "Starting the server..."

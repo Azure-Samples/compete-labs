@@ -68,11 +68,9 @@ aws_access_key_id=$(az keyvault secret show --vault-name aks-compete-labs --name
 aws_secret_access_key=$(az keyvault secret show --vault-name aks-compete-labs --name aws-secret-access-key --query value -o tsv)
 HUGGING_FACE_TOKEN=$(az keyvault secret show --vault-name aks-compete-labs --name hugging-face-token --query value -o tsv)
 VLLM_API_KEY=$(az keyvault secret show --vault-name aks-compete-labs --name vllm-api-key --query value -o tsv)
-RUN_ID=$(uuidgen)
 
 export HUGGING_FACE_TOKEN
 export VLLM_API_KEY
-export TF_VAR_run_id=$RUN_ID
 export ARM_SUBSCRIPTION_ID=$azure_subscription_id
 
 az account set --subscription $azure_subscription_id
