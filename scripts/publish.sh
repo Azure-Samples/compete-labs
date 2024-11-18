@@ -5,7 +5,7 @@ source scripts/utils.sh
 PROVIDER=$1
 
 publish_results_to_storage_account() {
-  local result_file="/tmp/${USER_ALIAS}-${PROVIDER}-result.json"
+  local result_file="/tmp/${TF_VAR_run_id}-${PROVIDER}-result.json"
   local storage_account="akstelescope"
   local container_name="compete-labs"
 
