@@ -206,7 +206,7 @@ test_server() {
 
         local completion_endpoint="http://${PUBLIC_IP}:80/v1/completions"
         local prompt="You are a helpful assistant. Help me answer this question: $question"
-        local body="{\"model\": \"meta-llama/Meta-Llama-3.1-8B\", \"prompt\": \"$prompt\", \"temperature\": 0.7, \"top_k\": -1, \"max_tokens\": 2000, \"stream\": true, \"stream_options\": {\"include_usage\": true}}"
+        local body="{\"model\": \"meta-llama/Meta-Llama-3.1-8B\", \"prompt\": \"$prompt\", \"temperature\": 0.7, \"top_k\": -1, \"max_tokens\": 1000, \"stream\": true, \"stream_options\": {\"include_usage\": true}}"
         local error_file="/tmp/${TF_VAR_run_id}-test_server-error.txt"
         local response_file="/tmp/${TF_VAR_run_id}-test_server-response.json"
         rm $response_file
@@ -225,7 +225,7 @@ test_server() {
             printf "%s" "$word"
 
             finish_reason=$(echo $data | jq -r '.choices[0].finish_reason')
-            if [ "$finish_reason" == "stop" ]; then
+            if [ "$finish_reason" != "null" ]; then
                 usage=$(echo $data | jq -r '.usage')
                 break
             fi
