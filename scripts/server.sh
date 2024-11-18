@@ -172,40 +172,76 @@ start_server() {
 }
 
 test_server() {
+    local Q1="If turkeys could talk, what do you think they would say to convince us to eat something else for Thanksgiving dinner?"
+    local Q2="If Santa's reindeer went on strike, which animals would he recruit to pull his sleigh, and why?"
+    local Q3="What would happen if Santa Claus and a Thanksgiving turkey switched places for a day?"
+
     local health_endpoint="http://${PUBLIC_IP}:80/health"
     echo "Checking server health endpoint at $health_endpoint ..."
     response=$(curl -s -o /dev/null -w "%{http_code}" $health_endpoint)
     if [ $response -eq 200 ]; then
         echo -e "${GREEN}Server is healthy!${NC}"
 
-        local completion_endpoint="http://${PUBLIC_IP}:80/v1/completions"
-        local prompt="You are a helpful assistant. Tell me a joke."
-        local data="{\"model\": \"meta-llama/Meta-Llama-3.1-8B\", \"prompt\": \"$prompt\", \"temperature\": 0.7, \"top_k\": -1, \"max_tokens\": 9900}"
-        local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/test_server-error.txt"
-        local response_file="/tmp/${TF_VAR_run_id}/${CLOUD}/test_server-response.txt"
+        echo "Please choose a question:"
+        echo "1) $Q1"
+        echo "2) $Q2"
+        echo "3) $Q3"
+        read -p "Enter the number of your choice: " choice
 
-        echo "Testing the server with request data $data ..."
+        case $choice in
+            1)
+                local question=$Q1
+                ;;
+            2)
+                local question=$Q2
+                ;;
+            3)
+                local question=$Q3
+                ;;
+            *)
+                echo "Invalid choice. Will default to the first question."
+                local question=$Q1
+                ;;
+        esac
+
+        local completion_endpoint="http://${PUBLIC_IP}:80/v1/completions"
+        local prompt="You are a helpful assistant. Help me answer this question: $question"
+        local body="{\"model\": \"meta-llama/Meta-Llama-3.1-8B\", \"prompt\": \"$prompt\", \"temperature\": 0.7, \"top_k\": -1, \"max_tokens\": 2000, \"stream\": true, \"stream_options\": {\"include_usage\": true}}"
+        local error_file="/tmp/${TF_VAR_run_id}-test_server-error.txt"
+        local response_file="/tmp/${TF_VAR_run_id}-test_server-response.json"
+        rm $response_file
+
+        echo "Question: $question"
+        echo "Answer:"
+
         start_time=$(date +%s)
-        status_code=$(curl -o $response_file -w "%{http_code}" \
-            -X POST $completion_endpoint \
+        while IFS= read -r line; do
+            if [ -z "$line" ] || [ "$line" == " " ]; then
+                continue
+            fi
+            echo "$line" >> $response_file
+            data=$(echo "$line" | sed 's/^data: //')
+            word=$(echo $data | jq -r '.choices[0].text')
+            printf "%s" "$word"
+
+            finish_reason=$(echo $data | jq -r '.choices[0].finish_reason')
+            if [ "$finish_reason" == "stop" ]; then
+                usage=$(echo $data | jq -r '.usage')
+                break
+            fi
+        done < <(curl -s -X POST $completion_endpoint \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${VLLM_API_KEY}" \
-            -d "$data" 2> $error_file)
+            -d "$body")
+        
         local exit_code=$?
         end_time=$(date +%s)
         export TEST_LATENCY=$((end_time - start_time))
 
         if [[ $exit_code -eq 0 ]]; then
-            if [[ $status_code -eq 200 ]]; then
-                echo -e "Response:\n$(cat $response_file | jq -r '.choices[0].text')"
-                echo -e "Usage:\n$(cat $response_file | jq -r '.usage')"
-                echo -e "${GREEN}Server is tested successfully!${NC}"
-                export TEST_STATUS="Success"
-            else
-                export TEST_STATUS="Failure"
-                export TEST_ERROR=$(cat $response_file)
-                echo -e "${RED}Testing the server failed with status code ${status_code} and response: ${TEST_ERROR}${NC}"
-            fi
+            echo -e "${GREEN}\nUsage: $usage${NC}"
+            echo -e "${GREEN}Server is tested successfully!${NC}"
+            export TEST_STATUS="Success"
         else
             export TEST_STATUS="Failure"
             export TEST_ERROR=$(cat $error_file)
@@ -235,7 +271,6 @@ case $ACTION in
         start_server
         ;;
     test)
-        confirm "test_server"
         test_server
         ;;
     *)
