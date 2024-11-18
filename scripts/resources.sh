@@ -53,6 +53,7 @@ provision_resources() {
     export PROVISION_ERROR=$(cat $error_file)
   fi
   echo -e "${YELLOW}Provision status: $PROVISION_STATUS, Provision latency: $PROVISION_LATENCY seconds${NC}"
+  publish_results "provision"
   popd
 }
 
@@ -84,6 +85,7 @@ cleanup_resources() {
     rm -f terraform.tfstate*
     echo -e "${YELLOW}Cleanup status: $CLEANUP_STATUS, Cleanup latency: $CLEANUP_LATENCY seconds${NC}"
   fi
+  publish_results "cleanup"
   popd
 }
 
@@ -185,6 +187,7 @@ cleanup_resources_using_cli() {
       export CLEANUP_ERROR=$(cat $error_file)
     fi
   fi
+  publish_results "cleanup"
 }
 
 
@@ -220,7 +223,7 @@ check_for_existing_resources() {
       --output tsv)
 
     if [ -n "$instance_name" ]; then
-      echo -e "${YELLOW}Error: VM already exist with owner $TF_VAR_owner ${NC}"
+      echo -e "${YELLOW}Warning: VM already exist with owner $TF_VAR_owner ${NC}"
       resources_exist=true
     fi
   fi

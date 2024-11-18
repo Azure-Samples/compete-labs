@@ -79,6 +79,7 @@ validate_resources() {
     done
 
     echo -e "${YELLOW}Validation status: $VALIDATE_STATUS, Validation latency: $VALIDATE_LATENCY seconds${NC}"
+    publish_results "validate"
 }
 
 deploy_server() {
@@ -102,6 +103,7 @@ deploy_server() {
         echo -e "${RED}Deploying the server failed with error: ${DEPLOY_ERROR}${NC}"
     fi
     echo -e "${YELLOW}Deploy status: $DEPLOY_STATUS, Deploy latency: $DEPLOY_LATENCY seconds${NC}"
+    publish_results "deploy"
 }
 
 start_server() {
@@ -163,6 +165,7 @@ start_server() {
         echo -e "${RED}Starting the server failed with error: ${START_ERROR}${NC}"
     fi
     echo -e "${YELLOW}Start status: $START_STATUS, Start latency: $START_LATENCY seconds${NC}"
+    publish_results "start"
 }
 
 test_server() {
@@ -213,6 +216,7 @@ test_server() {
     fi
 
     echo -e "${YELLOW}Test status: $TEST_STATUS, Test latency: $TEST_LATENCY seconds${NC}"
+    publish_results "test"
 }
 
 # Main
