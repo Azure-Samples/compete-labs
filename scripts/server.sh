@@ -172,23 +172,49 @@ start_server() {
 }
 
 test_server() {
+    local Q1="If turkeys could talk, what do you think they would say to convince us to eat something else for Thanksgiving dinner?"
+    local Q2="If Santa's reindeer went on strike, which animals would he recruit to pull his sleigh, and why?"
+    local Q3="What would happen if Santa Claus and a Thanksgiving turkey switched places for a day?"
+
     local health_endpoint="http://${PUBLIC_IP}:80/health"
     echo "Checking server health endpoint at $health_endpoint ..."
     response=$(curl -s -o /dev/null -w "%{http_code}" $health_endpoint)
     if [ $response -eq 200 ]; then
         echo -e "${GREEN}Server is healthy!${NC}"
 
+        echo "Please choose a question:"
+        echo "1) $Q1"
+        echo "2) $Q2"
+        echo "3) $Q3"
+        read -p "Enter the number of your choice: " choice
+
+        case $choice in
+            1)
+                local question=$Q1
+                ;;
+            2)
+                local question=$Q2
+                ;;
+            3)
+                local question=$Q3
+                ;;
+            *)
+                echo "Invalid choice. Will default to the first question."
+                local question=$Q1
+                ;;
+        esac
+
         local completion_endpoint="http://${PUBLIC_IP}:80/v1/completions"
-        local prompt="You are a helpful assistant. Tell me a joke."
-        local body="{\"model\": \"meta-llama/Meta-Llama-3.1-8B\", \"prompt\": \"$prompt\", \"temperature\": 0.7, \"top_k\": -1, \"max_tokens\": 9900, \"stream\": true, \"stream_options\": {\"include_usage\": true}}"
+        local prompt="You are a helpful assistant. Help me answer this question: $question"
+        local body="{\"model\": \"meta-llama/Meta-Llama-3.1-8B\", \"prompt\": \"$prompt\", \"temperature\": 0.7, \"top_k\": -1, \"max_tokens\": 2000, \"stream\": true, \"stream_options\": {\"include_usage\": true}}"
         local error_file="/tmp/${TF_VAR_run_id}-test_server-error.txt"
         local response_file="/tmp/${TF_VAR_run_id}-test_server-response.json"
         rm $response_file
 
-        echo "Testing the server with request data $body ..."
-        start_time=$(date +%s)
+        echo "Question: $question"
+        echo "Answer:"
 
-        usage=""
+        start_time=$(date +%s)
         while IFS= read -r line; do
             if [ -z "$line" ] || [ "$line" == " " ]; then
                 continue
@@ -245,7 +271,6 @@ case $ACTION in
         start_server
         ;;
     test)
-        confirm "test_server"
         test_server
         ;;
     *)
