@@ -8,7 +8,6 @@ if [ -z "$1" ] || [ -z "$2" ]; then
   echo "Action options: provision, cleanup"
   echo "Cloud options: aws, azure"
   echo "Region (optional, defaults to 'us-west-2' for AWS and 'eastus' for Azure)"
-  exit 1
 fi
 
 ACTION=$1
@@ -263,6 +262,5 @@ case $ACTION in
     ;;
   *)
     echo "Invalid action: $ACTION"
-    exit 1
     ;;
 esac

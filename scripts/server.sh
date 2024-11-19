@@ -7,7 +7,6 @@ if [ -z "$1" ] || [ -z "$2" ]; then
   echo "Usage: $0 <action> <cloud>"
   echo "Action options: deploy, start, test"
   echo "Cloud options: aws, azure"
-  exit 1
 fi
 
 ACTION=$1
@@ -275,6 +274,5 @@ case $ACTION in
         ;;
     *)
         echo "Invalid action: $ACTION"
-        exit 1
         ;;
 esac
