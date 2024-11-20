@@ -1,3 +1,9 @@
+# Check if the script is being sourced
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    echo "This script must be sourced. Run it with: source $0"
+    exit 0
+fi
+
 if ! command -v az &> /dev/null
 then
     echo "Azure CLI not found. Installing Azure CLI..."
