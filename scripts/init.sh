@@ -1,6 +1,10 @@
+#!/bin/bash
+
+source scripts/utils.sh
+
 # Check if the script is being sourced
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    echo "This script must be sourced. Run it with: source $0"
+    echo -e "${RED}This script must be sourced. Run it with: source $0${NC}"
     exit 0
 fi
 
