@@ -2,6 +2,12 @@
 
 source scripts/utils.sh
 
+# Check if the script is being sourced
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    echo -e "${RED}This script must be sourced. Run it with: source $0${NC}"
+    exit 0
+fi
+
 # Check if action and cloud are provided
 if [ -z "$1" ] || [ -z "$2" ]; then
   echo "Usage: $0 <action> <cloud>"
