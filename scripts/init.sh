@@ -45,6 +45,7 @@ fi
 
 terraform --version
 
+echo "Please login to Microsoft Account..."
 az login --use-device-code
 
 # Unset variables with *_STATUS, *_LATENCY, *_ERROR pattern
