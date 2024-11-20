@@ -73,7 +73,7 @@ source scripts/resources.sh cleanup $CLOUD $REGION
 ```
 
 ## Publish Results
-Collect and upload test results to Azure Data Explorer
+Collect and upload test results to Azure Data Explorer. Please always publish results even if you fail halfway and have to re-run the code labs from scratch.
 ```bash
 source scripts/publish.sh $CLOUD
 ```
