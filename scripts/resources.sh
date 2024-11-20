@@ -107,7 +107,7 @@ cleanup_resources_using_cli() {
     if [ -n "$instance_id" ]; then
       start_time=$(date +%s)
       aws ec2 terminate-instances --region $REGION --instance-ids $instance_id
-      echo "Waiting for instance to terminate..."
+      echo "Waiting for instance to terminate. It may take 10-15 minutes to terminate the instance..."
       aws ec2 wait instance-terminated --region $REGION --instance-ids $instance_id
 
       # List and delete security groups

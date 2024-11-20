@@ -45,13 +45,7 @@ fi
 
 terraform --version
 
-if ! az account show &> /dev/null
-then
-    echo "Please login to Microsoft Account..."
-    az login --use-device-code
-else
-    echo "Already logged in to Azure."
-fi
+az login --use-device-code
 
 # Unset variables with *_STATUS, *_LATENCY, *_ERROR pattern
 for var in $(compgen -v | grep -E '_STATUS$|_LATENCY$|_ERROR$'); do
