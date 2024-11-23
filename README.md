@@ -73,12 +73,18 @@ source scripts/resources.sh cleanup $CLOUD $REGION
 ```
 
 ## Publish Results
-Collect and upload test results to Azure Data Explorer. Please always publish results even if you fail halfway and have to re-run the code labs from scratch.
+Collect and upload test results to Azure Data Explorer. Please always publish results even if you run into issue before reaching this step, this helps us to know which step failed with what error
 ```bash
 source scripts/publish.sh $CLOUD
 ```
 Check out aggregated and visualized test results on the [dashboard](https://dataexplorer.azure.com/dashboards/8a3e24d9-2907-40c3-a1ac-310ef4aeb608)
 
 # Troubleshooting
+If you run into access issue like this
+```
+Fetching secrets from Azure Key Vault...
+ERROR: (Forbidden) Caller is not authorized to perform action on resource.
+```
+please request joining this [security group](https://outlook-sdf.office.com/owa/aks-telescope-compete-labs@service.microsoft.com/groupsubscription.ashx?action=join&source=MSExchange/LokiServer&guid=b96f88fc-7dec-4142-b621-2faf3a7b667c), and wait until approval before trying again.
 
-If you run into any issue during the code lab, join [Telescope](https://teams.microsoft.com/l/team/19%3APHPTaKZyQrCD5E2O4yW3du2lDUWfP0syLEHjRZmWdqU1%40thread.tacv2/conversations?groupId=dd5ac11e-9156-4267-95b7-066e25c0be71&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47) channel to get help.
+For any other issue, please request joining [Telescope](https://teams.microsoft.com/l/team/19%3APHPTaKZyQrCD5E2O4yW3du2lDUWfP0syLEHjRZmWdqU1%40thread.tacv2/conversations?groupId=dd5ac11e-9156-4267-95b7-066e25c0be71&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47) channel to get help.
