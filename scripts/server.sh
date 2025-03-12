@@ -214,7 +214,7 @@ test_server() {
         local body="{\"model\": \"meta-llama/Meta-Llama-3.1-8B\", \"prompt\": \"$prompt\", \"temperature\": 0.7, \"top_k\": -1, \"max_tokens\": 1000, \"stream\": true, \"stream_options\": {\"include_usage\": true}}"
         local error_file="/tmp/${TF_VAR_run_id}-test_server-error.txt"
         local response_file="/tmp/${TF_VAR_run_id}-test_server-response.json"
-        rm $response_file
+        rm $response_file 2> /dev/null
 
         echo "Question: $question"
         echo "Answer:"

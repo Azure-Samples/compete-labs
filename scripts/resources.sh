@@ -97,8 +97,8 @@ cleanup_resources() {
     fi
     rm -f terraform.tfstate*
     echo -e "${YELLOW}Cleanup status: $CLEANUP_STATUS, Cleanup latency: $CLEANUP_LATENCY seconds${NC}"
+    publish_results "cleanup" $CLOUD
   fi
-  publish_results "cleanup" $CLOUD
   popd
 }
 
