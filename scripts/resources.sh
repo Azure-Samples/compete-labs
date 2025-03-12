@@ -21,17 +21,17 @@ ACTION=$1
 CLOUD=$2
 
 set_aws_variables() {
-  REGION=${3:-us-west-2}
-  export TF_VAR_region=$REGION
+  local region=${1:-"us-west-2"}
+  export TF_VAR_region=$region
   if [ -z "$TF_VAR_capacity_reservation_id" ]; then
     capacity_reservation_id=$(aws ec2 describe-capacity-reservations \
-      --region $REGION \
+      --region $region \
       --filters Name=state,Values=active \
       --query "CapacityReservations[*].{ReservationId:CapacityReservationId, AvailableCount:AvailableInstanceCount}" \
       --output json | jq -r 'map(select(.AvailableCount > 0)) | .[0].ReservationId')
 
     if [ -z "$capacity_reservation_id" ]; then
-      echo -e "${RED}Error: No active capacity reservations with available instances found in $REGION${NC}"
+      echo -e "${RED}Error: No active capacity reservations with available instances found in $region${NC}"
     fi
   fi
 
@@ -50,7 +50,7 @@ provision_resources() {
     terraform apply -auto-approve 2> $error_file
   elif [ "$CLOUD" == "azure" ]; then
     start_time=$(date +%s)
-    create_resources $TF_VAR_run_id $TF_VAR_owner $REGION $TF_VAR_ssh_public_key $TF_VAR_user_data_path 2> $error_file
+    create_resources $TF_VAR_run_id $TF_VAR_owner $TF_VAR_region $TF_VAR_ssh_public_key $TF_VAR_user_data_path 2> $error_file
   fi
   local exit_code=$?
   end_time=$(date +%s)
@@ -251,8 +251,8 @@ check_for_existing_resources() {
 }
 
 set_azure_variables() {
-  REGION=${3:-eastus2}
-  export TF_VAR_region=$REGION
+  local region=${1:-"eastus2"}
+  export TF_VAR_region=$region
 }
 
 case $ACTION in
