@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source scripts/utils.sh
+source scripts/azure.sh
 
 # Check if the script is being sourced
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
@@ -42,10 +43,15 @@ provision_resources() {
   local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/provision-error.txt"
   mkdir -p "$(dirname "$error_file")"
   pushd modules/terraform/$CLOUD
-  terraform init
   echo "Provisioning resources in $CLOUD..."
-  start_time=$(date +%s)
-  terraform apply -auto-approve 2> $error_file
+  if [ "$CLOUD" == "aws" ]; then
+    terraform init
+    start_time=$(date +%s)
+    terraform apply -auto-approve 2> $error_file
+  elif [ "$CLOUD" == "azure" ]; then
+    start_time=$(date +%s)
+    create_resources $TF_VAR_run_id $TF_VAR_owner $REGION $TF_VAR_ssh_public_key $TF_VAR_user_data_path 2> $error_file
+  fi
   local exit_code=$?
   end_time=$(date +%s)
   export PROVISION_LATENCY=$((end_time - start_time))
