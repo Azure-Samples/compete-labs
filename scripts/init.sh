@@ -66,7 +66,7 @@ fi
 export TF_VAR_user_data_path=$(pwd)/modules/user_data/user_data.sh
 
 echo "Fetching secrets from Azure Key Vault..."
-azure_subscription_id=$(az keyvault secret show --vault-name aks-compete-labs --name compete-subscription --query value -o tsv)
+azure_subscription_id=$(az keyvault secret show --vault-name aks-compete-labs --name azure-subscription --query value -o tsv)
 aws_username=$(az keyvault secret show --vault-name aks-compete-labs --name aws-username --query value -o tsv)
 aws_password=$(az keyvault secret show --vault-name aks-compete-labs --name aws-password --query value -o tsv)
 aws_access_key_id=$(az keyvault secret show --vault-name aks-compete-labs --name aws-access-key-id --query value -o tsv)

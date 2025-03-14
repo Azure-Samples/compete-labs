@@ -213,20 +213,13 @@ check_for_existing_resources() {
   if [ "$cloud" == "aws" ]; then
     local instance_id=$(aws ec2 describe-instances \
       --region $region \
-      --filters Name=tag:owner,Values=$TF_VAR_owner \
+      --filters "Name=instance-state-name,Values=running" "Name=tag:owner,Values=$TF_VAR_owner" \
       --query "Reservations[*].Instances[*].InstanceId" \
       --output text)
 
     if [ -n "$instance_id" ]; then
       echo -e "${YELLOW}Warning: VM already exist with owner $TF_VAR_owner in $region${NC}"
       resources_exist=true
-      # Get reservation id from the vm tags
-      local reservation_id=$(aws ec2 describe-instances \
-        --region $region \
-        --instance-ids $instance_id \
-        --query "Reservations[*].Instances[*].CapacityReservationId" \
-        --output json | jq -r '.[0][0]')
-      export TF_VAR_capacity_reservation_id=$reservation_id
       run_id=$(aws ec2 describe-instances \
         --region $region \
         --instance-ids $instance_id \
@@ -251,7 +244,7 @@ check_for_existing_resources() {
 }
 
 set_azure_variables() {
-  local region=${1:-"eastus2"}
+  local region=${1:-"westus3"}
   export TF_VAR_region=$region
 }
 
