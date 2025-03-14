@@ -129,6 +129,8 @@ start_server() {
         vllm/vllm-openai:v0.6.3.post1 \
         --model meta-llama/Meta-Llama-3.1-8B \
         --max_model_len 10000 \
+        --dtype float16 \
+        --tensor-parallel-size 2 \
         --port 80"
     local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/start_server-error.txt"
     mkdir -p "$(dirname "$error_file")"
