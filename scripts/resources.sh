@@ -23,19 +23,6 @@ CLOUD=$2
 set_aws_variables() {
   local region=${1:-"us-west-2"}
   export TF_VAR_region=$region
-  if [ -z "$TF_VAR_capacity_reservation_id" ]; then
-    capacity_reservation_id=$(aws ec2 describe-capacity-reservations \
-      --region $region \
-      --filters Name=state,Values=active \
-      --query "CapacityReservations[*].{ReservationId:CapacityReservationId, AvailableCount:AvailableInstanceCount}" \
-      --output json | jq -r 'map(select(.AvailableCount > 0)) | .[0].ReservationId')
-
-    if [ -z "$capacity_reservation_id" ]; then
-      echo -e "${RED}Error: No active capacity reservations with available instances found in $region${NC}"
-    fi
-  fi
-
-  export TF_VAR_capacity_reservation_id=$capacity_reservation_id
   export TF_VAR_zone_suffix="a"
 }
 
