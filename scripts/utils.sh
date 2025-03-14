@@ -1,7 +1,7 @@
 #!/bin/bash
 
-AWS_HOURLY_COST=32.7726
-AZURE_HOURLY_COST=14.69
+AWS_HOURLY_COST=3.912
+AZURE_HOURLY_COST=4.352
 # Function to prompt user for confirmation
 confirm() {
     while true; do

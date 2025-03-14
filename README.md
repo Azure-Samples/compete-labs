@@ -30,7 +30,7 @@ source scripts/init.sh
 ### For Azure
 ```bash
 export CLOUD=azure
-export REGION=eastus2
+export REGION=westus3
 ```
 
 ### For AWS
