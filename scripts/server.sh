@@ -55,6 +55,7 @@ run_ssh_command() {
 }
 
 validate_resources() {
+    export VALIDATE_LATENCY="" VALIDATE_STATUS="" VALIDATE_ERROR=""
     local command="nvidia-smi"
     local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/validate_resources-error.txt"
     mkdir -p "$(dirname "$error_file")"
@@ -89,6 +90,7 @@ validate_resources() {
 }
 
 deploy_server() {
+    export DEPLOY_LATENCY="" DEPLOY_STATUS="" DEPLOY_ERROR=""
     local model="vllm/vllm-openai:v0.6.3.post1"
     local command="sudo docker pull $model"
     local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/deploy_server-error.txt"
@@ -114,6 +116,7 @@ deploy_server() {
 }
 
 start_server() {
+    export START_LATENCY="" START_STATUS="" START_ERROR=""
     echo "Cleaning up existing containers (if any) before starting the server..."
     local cleanup_command="sudo docker stop \$(sudo docker ps -aq) && sudo docker rm \$(sudo docker ps -aq)"
     run_ssh_command $SSH_KEY_PATH $USERNAME $PUBLIC_IP $SSH_PORT "$cleanup_command" 2> /dev/null
@@ -179,6 +182,7 @@ start_server() {
 }
 
 test_server() {
+    export TEST_LATENCY="" TEST_STATUS="" TEST_ERROR=""
     local Q1="If turkeys could talk, what do you think they would say to convince us to eat something else for Thanksgiving dinner?"
     local Q2="If Santa's reindeer went on strike, which animals would he recruit to pull his sleigh, and why?"
     local Q3="What would happen if Santa Claus and a Thanksgiving turkey switched places for a day?"

@@ -27,6 +27,7 @@ set_aws_variables() {
 }
 
 provision_resources() {
+  export PROVISION_LATENCY="" PROVISION_STATUS="" PROVISION_ERROR=""
   local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/provision-error.txt"
   mkdir -p "$(dirname "$error_file")"
   pushd modules/terraform/$CLOUD
@@ -57,6 +58,7 @@ provision_resources() {
 }
 
 cleanup_resources() {
+  export CLEANUP_LATENCY="" CLEANUP_STATUS="" CLEANUP_ERROR=""
   local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/cleanup-error.txt"
   mkdir -p "$(dirname "$error_file")"
   pushd modules/terraform/$CLOUD

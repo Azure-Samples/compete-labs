@@ -80,4 +80,4 @@ source scripts/publish.sh $CLOUD
 Check out aggregated and visualized test results on the [dashboard](https://dataexplorer.azure.com/dashboards/8a3e24d9-2907-40c3-a1ac-310ef4aeb608)
 
 # Troubleshooting
-If you run into issue, please read this troubleshooting [doc](https://microsoft-my.sharepoint.com/:w:/r/personal/ansonqian_microsoft_com/_layouts/15/Doc.aspx?sourcedoc=%7BD90DBAC2-8EE5-4484-A472-726B8D73EBCD%7D&file=Document%201.docx&action=editnew&mobileredirect=true&wdNewAndOpenCt=1732332767038&ct=1732332768094&wdOrigin=OFFICECOM-WEB.MAIN.NEW&wdPreviousSessionSrc=HarmonyWeb&wdPreviousSession=2f665047-7975-4bf8-8626-efada9156305&cid=a3131489-a320-4e97-a708-658632b87e2c)
+If you run into issue, please read this troubleshooting [doc](https://microsoft.sharepoint.com/:w:/r/teams/azurecontainercompute/Shared%20Documents/AKS/Compete/Compete%20Codelabs%20Troubleshooting.docx?d=wdea06baaa1d74a7486fd45404f6ca487&csf=1&web=1&e=5HfdaV)

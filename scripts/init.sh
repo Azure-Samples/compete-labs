@@ -46,6 +46,7 @@ fi
 terraform --version
 
 echo "Please login to Microsoft Account..."
+az config set core.login_experience_v2=off
 az login --use-device-code
 
 # Unset variables with *_STATUS, *_LATENCY, *_ERROR pattern
@@ -78,7 +79,9 @@ export HUGGING_FACE_TOKEN
 export VLLM_API_KEY
 export ARM_SUBSCRIPTION_ID=$azure_subscription_id
 
+echo "Logging in to Azure subscription..."
 az account set --subscription $azure_subscription_id
+az account show
 
 echo "Logging in to AWS..."
 aws configure set aws_access_key_id $aws_access_key_id
