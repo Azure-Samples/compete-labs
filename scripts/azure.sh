@@ -1,4 +1,6 @@
 #!/bin/bash
+VM_SIZE="Standard_NC64as_T4_v3"
+VM_IMAGE="microsoft-dsvm:ubuntu-hpc:2204:latest"
 
 create_resources() {
     local run_id=$1
@@ -30,10 +32,10 @@ create_resources() {
 
     echo "Create Linux Virtual Machine"
     az vm create --resource-group $resource_group \
-        --name chatbot-server --size Standard_NC96ads_A100_v4 \
-        --nics chatbot-server-nic --zone 2 \
+        --name chatbot-server --size $VM_SIZE \
+        --nics chatbot-server-nic \
         --os-disk-caching ReadWrite --storage-sku Premium_LRS --os-disk-size-gb 256 \
-        --image microsoft-dsvm:ubuntu-hpc:2204:latest \
+        --image $VM_IMAGE \
         --admin-username ubuntu --ssh-key-value @${ssh_public_key_path} --tags $tags
 
     echo "Add Custom Script Extension to VM"

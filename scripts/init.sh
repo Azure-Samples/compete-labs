@@ -46,6 +46,7 @@ fi
 terraform --version
 
 echo "Please login to Microsoft Account..."
+az config set core.login_experience_v2=off
 az login --use-device-code
 
 # Unset variables with *_STATUS, *_LATENCY, *_ERROR pattern
@@ -66,7 +67,7 @@ fi
 export TF_VAR_user_data_path=$(pwd)/modules/user_data/user_data.sh
 
 echo "Fetching secrets from Azure Key Vault..."
-azure_subscription_id=$(az keyvault secret show --vault-name aks-compete-labs --name compete-subscription --query value -o tsv)
+azure_subscription_id=$(az keyvault secret show --vault-name aks-compete-labs --name azure-subscription --query value -o tsv)
 aws_username=$(az keyvault secret show --vault-name aks-compete-labs --name aws-username --query value -o tsv)
 aws_password=$(az keyvault secret show --vault-name aks-compete-labs --name aws-password --query value -o tsv)
 aws_access_key_id=$(az keyvault secret show --vault-name aks-compete-labs --name aws-access-key-id --query value -o tsv)
@@ -78,7 +79,9 @@ export HUGGING_FACE_TOKEN
 export VLLM_API_KEY
 export ARM_SUBSCRIPTION_ID=$azure_subscription_id
 
+echo "Logging in to Azure subscription..."
 az account set --subscription $azure_subscription_id
+az account show
 
 echo "Logging in to AWS..."
 aws configure set aws_access_key_id $aws_access_key_id

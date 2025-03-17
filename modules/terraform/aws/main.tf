@@ -96,7 +96,7 @@ resource "aws_key_pair" "admin_key_pair" {
 
 resource "aws_instance" "vm" {
   ami                         = data.aws_ami.deep_learning_gpu_ami.id
-  instance_type               = "p4d.24xlarge"
+  instance_type               = "g4dn.12xlarge"
   availability_zone           = "${var.region}${var.zone_suffix}"
   subnet_id                   = aws_subnet.subnet.id
   vpc_security_group_ids      = [aws_security_group.sg.id]
@@ -105,18 +105,5 @@ resource "aws_instance" "vm" {
   user_data                   = file(var.user_data_path)
   root_block_device {
     volume_size = 256
-  }
-
-  instance_market_options {
-    market_type = "capacity-block"
-  }
-  capacity_reservation_specification {
-    capacity_reservation_target {
-      capacity_reservation_id = var.capacity_reservation_id
-    }
-  }
-
-  tags = {
-    capacity_reservation_id = var.capacity_reservation_id
   }
 }

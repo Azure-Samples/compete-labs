@@ -21,25 +21,13 @@ ACTION=$1
 CLOUD=$2
 
 set_aws_variables() {
-  REGION=${3:-us-west-2}
-  export TF_VAR_region=$REGION
-  if [ -z "$TF_VAR_capacity_reservation_id" ]; then
-    capacity_reservation_id=$(aws ec2 describe-capacity-reservations \
-      --region $REGION \
-      --filters Name=state,Values=active \
-      --query "CapacityReservations[*].{ReservationId:CapacityReservationId, AvailableCount:AvailableInstanceCount}" \
-      --output json | jq -r 'map(select(.AvailableCount > 0)) | .[0].ReservationId')
-
-    if [ -z "$capacity_reservation_id" ]; then
-      echo -e "${RED}Error: No active capacity reservations with available instances found in $REGION${NC}"
-    fi
-  fi
-
-  export TF_VAR_capacity_reservation_id=$capacity_reservation_id
+  local region=${1:-"us-west-2"}
+  export TF_VAR_region=$region
   export TF_VAR_zone_suffix="a"
 }
 
 provision_resources() {
+  export PROVISION_LATENCY="" PROVISION_STATUS="" PROVISION_ERROR=""
   local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/provision-error.txt"
   mkdir -p "$(dirname "$error_file")"
   pushd modules/terraform/$CLOUD
@@ -50,7 +38,7 @@ provision_resources() {
     terraform apply -auto-approve 2> $error_file
   elif [ "$CLOUD" == "azure" ]; then
     start_time=$(date +%s)
-    create_resources $TF_VAR_run_id $TF_VAR_owner $REGION $TF_VAR_ssh_public_key $TF_VAR_user_data_path 2> $error_file
+    create_resources $TF_VAR_run_id $TF_VAR_owner $TF_VAR_region $TF_VAR_ssh_public_key $TF_VAR_user_data_path 2> $error_file
   fi
   local exit_code=$?
   end_time=$(date +%s)
@@ -70,6 +58,7 @@ provision_resources() {
 }
 
 cleanup_resources() {
+  export CLEANUP_LATENCY="" CLEANUP_STATUS="" CLEANUP_ERROR=""
   local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/cleanup-error.txt"
   mkdir -p "$(dirname "$error_file")"
   pushd modules/terraform/$CLOUD
@@ -97,8 +86,8 @@ cleanup_resources() {
     fi
     rm -f terraform.tfstate*
     echo -e "${YELLOW}Cleanup status: $CLEANUP_STATUS, Cleanup latency: $CLEANUP_LATENCY seconds${NC}"
+    publish_results "cleanup" $CLOUD
   fi
-  publish_results "cleanup" $CLOUD
   popd
 }
 
@@ -213,20 +202,13 @@ check_for_existing_resources() {
   if [ "$cloud" == "aws" ]; then
     local instance_id=$(aws ec2 describe-instances \
       --region $region \
-      --filters Name=tag:owner,Values=$TF_VAR_owner \
+      --filters "Name=instance-state-name,Values=running" "Name=tag:owner,Values=$TF_VAR_owner" \
       --query "Reservations[*].Instances[*].InstanceId" \
       --output text)
 
     if [ -n "$instance_id" ]; then
       echo -e "${YELLOW}Warning: VM already exist with owner $TF_VAR_owner in $region${NC}"
       resources_exist=true
-      # Get reservation id from the vm tags
-      local reservation_id=$(aws ec2 describe-instances \
-        --region $region \
-        --instance-ids $instance_id \
-        --query "Reservations[*].Instances[*].CapacityReservationId" \
-        --output json | jq -r '.[0][0]')
-      export TF_VAR_capacity_reservation_id=$reservation_id
       run_id=$(aws ec2 describe-instances \
         --region $region \
         --instance-ids $instance_id \
@@ -251,8 +233,8 @@ check_for_existing_resources() {
 }
 
 set_azure_variables() {
-  REGION=${3:-eastus2}
-  export TF_VAR_region=$REGION
+  local region=${1:-"westus3"}
+  export TF_VAR_region=$region
 }
 
 case $ACTION in
