@@ -2,7 +2,7 @@
 VM_SIZE="Standard_NC64as_T4_v3"
 VM_IMAGE="microsoft-dsvm:ubuntu-hpc:2204:latest"
 
-create_resources() {
+provision_resources_azure() {
     local run_id=$1
     local owner=$2
     local location=$3

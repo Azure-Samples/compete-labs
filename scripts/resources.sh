@@ -2,6 +2,7 @@
 
 source scripts/utils.sh
 source scripts/azure.sh
+source scripts/aws.sh
 
 # Check if the script is being sourced
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
@@ -30,16 +31,8 @@ provision_resources() {
   export PROVISION_LATENCY="" PROVISION_STATUS="" PROVISION_ERROR=""
   local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/provision-error.txt"
   mkdir -p "$(dirname "$error_file")"
-  pushd modules/terraform/$CLOUD
-  echo "Provisioning resources in $CLOUD..."
-  if [ "$CLOUD" == "aws" ]; then
-    terraform init
-    start_time=$(date +%s)
-    terraform apply -auto-approve 2> $error_file
-  elif [ "$CLOUD" == "azure" ]; then
-    start_time=$(date +%s)
-    create_resources $TF_VAR_run_id $TF_VAR_owner $TF_VAR_region $TF_VAR_ssh_public_key $TF_VAR_user_data_path 2> $error_file
-  fi
+  start_time=$(date +%s)
+  provision_resources_$CLOUD $TF_VAR_run_id $TF_VAR_owner $TF_VAR_region $TF_VAR_ssh_public_key $TF_VAR_user_data_path 2> $error_file
   local exit_code=$?
   end_time=$(date +%s)
   export PROVISION_LATENCY=$((end_time - start_time))
@@ -54,41 +47,15 @@ provision_resources() {
   fi
   echo -e "${YELLOW}Provision status: $PROVISION_STATUS, Provision latency: $PROVISION_LATENCY seconds${NC}"
   publish_results "provision" $CLOUD
-  popd
 }
 
 cleanup_resources() {
   export CLEANUP_LATENCY="" CLEANUP_STATUS="" CLEANUP_ERROR=""
   local error_file="/tmp/${TF_VAR_run_id}/${CLOUD}/cleanup-error.txt"
   mkdir -p "$(dirname "$error_file")"
-  pushd modules/terraform/$CLOUD
   echo "Cleaning up resources in $CLOUD..."
 
-  # check for terraform state files
-  if [ ! -f terraform.tfstate ]; then
-    echo -e "${YELLOW}Terraform state files not found. Cleanup using cli${NC}"
-    cleanup_resources_using_cli
-
-  else
-    start_time=$(date +%s)
-    terraform destroy -auto-approve 2> $error_file
-    local exit_code=$?
-    end_time=$(date +%s)
-    export CLEANUP_LATENCY=$((end_time - start_time))
-
-    if [[ $exit_code -eq 0 ]]; then
-      echo -e "${GREEN}Resources are cleaned up successfully!${NC}"
-      export CLEANUP_STATUS="Success"
-    else
-      echo -e "${RED}Error: Failed to clean up resources: $(cat $error_file)${NC}"
-      export CLEANUP_STATUS="Failure"
-      export CLEANUP_ERROR=$(cat $error_file)
-    fi
-    rm -f terraform.tfstate*
-    echo -e "${YELLOW}Cleanup status: $CLEANUP_STATUS, Cleanup latency: $CLEANUP_LATENCY seconds${NC}"
-    publish_results "cleanup" $CLOUD
-  fi
-  popd
+  cleanup_resources_using_cli
 }
 
 cleanup_resources_using_cli() {
@@ -159,13 +126,12 @@ cleanup_resources_using_cli() {
         aws ec2 delete-route-table --route-table-id $route_table_id
       fi
       internet_gateway_id=$(aws ec2 describe-internet-gateways --filters Name=tag:owner,Values=$TF_VAR_owner --query "InternetGateways[*].[InternetGatewayId]" --output text)
-      if [ -n "$internet_gateway_id" ]; then
+      vpc_id=$(aws ec2 describe-vpcs --filters Name=tag:owner,Values=$TF_VAR_owner --query "Vpcs[*].[VpcId]" --output text)
+      if [ -n "$internet_gateway_id" -a -n "$vpc_id" ]; then
         echo "Detaching and Deleting Internet Gateway: $internet_gateway_id"
         aws ec2 detach-internet-gateway --internet-gateway-id $internet_gateway_id --vpc-id $vpc_id
         aws ec2 delete-internet-gateway --internet-gateway-id $internet_gateway_id
-      fi
-      vpc_id=$(aws ec2 describe-vpcs --filters Name=tag:owner,Values=$TF_VAR_owner --query "Vpcs[*].[VpcId]" --output text)
-      if [ -n "$vpc_id" ]; then
+
         echo "Deleting VPC: $vpc_id"
         aws ec2 delete-vpc --vpc-id $vpc_id
       fi
@@ -227,7 +193,7 @@ check_for_existing_resources() {
       echo -e "${YELLOW}Warning: VM already exist with owner $TF_VAR_owner ${NC}"
       resources_exist=true
       run_id=$(az group show --name  $resource_group_name --query "tags.run_id" -o tsv)
-      export TF_VAR_run_id=$run_id      
+      export TF_VAR_run_id=$run_id
     fi
   fi
 }

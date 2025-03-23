@@ -2,7 +2,7 @@
 
 This codelab simulates scenarios where a startup CEO is trying to build a cloud-native intelligent app based on an open-source large language model. In particular, they want to quickly test and compare different cloud providers to find the best price performance.
 
-In this codelab, you will follow a step-by-step guide to experiment with state-of-the-art hardware like [Nvidia A100 GPU chips](https://www.nvidia.com/en-us/data-center/a100/), large language model like [Meta Llama 3.1](https://ai.meta.com/blog/meta-llama-3-1/), and software like [vLLM](https://github.com/vllm-project/vllm). You'll leverage cloud-native technologies like [Terraform](https://www.terraform.io/), [Docker](https://www.docker.com/), and [Linux Bash](https://www.gnu.org/software/bash/manual/bash.html) on major cloud providers such as [Azure](https://azure.microsoft.com/) and [AWS](https://aws.amazon.com/).
+In this codelab, you will follow a step-by-step guide to experiment with hardware like [NVIDIA T4 Tensor Core GPU for AI Inference](https://www.nvidia.com/en-us/data-center/tesla-t4/), large language model like [Meta Llama 3.1](https://ai.meta.com/blog/meta-llama-3-1/), and software like [vLLM](https://github.com/vllm-project/vllm). You'll leverage cloud-native technologies like [Terraform](https://www.terraform.io/), [Docker](https://www.docker.com/), and [Linux Bash](https://www.gnu.org/software/bash/manual/bash.html) on major cloud providers such as [Azure](https://azure.microsoft.com/) and [AWS](https://aws.amazon.com/).
 
 ![Dashboard](docs/img/dashboard.png)
 

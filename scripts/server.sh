@@ -36,7 +36,7 @@ get_public_ip_azure() {
 get_public_ip_aws() {
     echo "Getting the public IP address..."
     public_ip=$(aws ec2 describe-instances --region $TF_VAR_region \
-        --filters Name=tag:run_id,Values=${TF_VAR_run_id} Name=instance-state-name,Values=running \
+        --filters Name=tag:owner,Values=${TF_VAR_owner} Name=instance-state-name,Values=running \
         --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
     echo -e "${GREEN}Public IP: $public_ip${NC}"
     export PUBLIC_IP=$public_ip
@@ -244,7 +244,7 @@ test_server() {
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${VLLM_API_KEY}" \
             -d "$body")
-        
+
         local exit_code=$?
         end_time=$(date +%s)
         export TEST_LATENCY=$((end_time - start_time))
