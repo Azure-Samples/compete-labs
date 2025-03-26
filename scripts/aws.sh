@@ -12,7 +12,10 @@ create_vpc_subnet() {
         --query 'Vpc.VpcId' \
         --output text)
 
-    aws ec2 create-tags --resources $vpc_id --tags "Key=Name,Value=compete-labs-${owner}" "Key=owner,Value=${owner}"
+    aws ec2 create-tags --resources $vpc_id --tags \
+        "Key=Name,Value=compete-labs-${owner}" \
+        "Key=owner,Value=${owner}" \
+        "Key=deletion_due_time,Value=$(date -d '8 hours' -u +%Y-%m-%dT%H:%M:%SZ)"
 
     local subnet_id=$(aws ec2 create-subnet \
         --vpc-id $vpc_id \
@@ -25,7 +28,9 @@ create_vpc_subnet() {
         --subnet-id $subnet_id \
         --map-public-ip-on-launch
 
-    aws ec2 create-tags --resources $subnet_id --tags "Key=owner,Value=${owner}"
+    aws ec2 create-tags --resources $subnet_id --tags \
+        "Key=owner,Value=${owner}" \
+        "Key=deletion_due_time,Value=$(date -d '8 hours' -u +%Y-%m-%dT%H:%M:%SZ)"
 
     echo "$vpc_id:$subnet_id"
 }
@@ -41,7 +46,9 @@ create_security_group() {
         --query 'GroupId' \
         --output text)
 
-    aws ec2 create-tags --resources $sg_id --tags "Key=owner,Value=${owner}"
+    aws ec2 create-tags --resources $sg_id --tags \
+        "Key=owner,Value=${owner}" \
+        "Key=deletion_due_time,Value=$(date -d '8 hours' -u +%Y-%m-%dT%H:%M:%SZ)"
 
     aws ec2 authorize-security-group-ingress \
         --group-id $sg_id \
@@ -83,7 +90,9 @@ create_network_routing() {
         --query 'InternetGateway.InternetGatewayId' \
         --output text)
 
-    aws ec2 create-tags --resources $igw_id --tags "Key=owner,Value=${owner}"
+    aws ec2 create-tags --resources $igw_id --tags \
+        "Key=owner,Value=${owner}" \
+        "Key=deletion_due_time,Value=$(date -d '8 hours' -u +%Y-%m-%dT%H:%M:%SZ)"
 
     aws ec2 attach-internet-gateway \
         --vpc-id $vpc_id \
@@ -95,7 +104,9 @@ create_network_routing() {
         --query 'RouteTable.RouteTableId' \
         --output text)
 
-    aws ec2 create-tags --resources $route_table_id --tags "Key=owner,Value=${owner}"
+    aws ec2 create-tags --resources $route_table_id --tags \
+        "Key=owner,Value=${owner}" \
+        "Key=deletion_due_time,Value=$(date -d '8 hours' -u +%Y-%m-%dT%H:%M:%SZ)"
 
     aws ec2 create-route \
         --route-table-id $route_table_id \
@@ -139,7 +150,9 @@ create_ec2_instance() {
         --query 'Instances[0].InstanceId' \
         --output text)
 
-    aws ec2 create-tags --resources $instance_id --tags "Key=owner,Value=${owner}"
+    aws ec2 create-tags --resources $instance_id --tags \
+        "Key=owner,Value=${owner}" \
+        "Key=deletion_due_time,Value=$(date -d '8 hours' -u +%Y-%m-%dT%H:%M:%SZ)"
 
     aws ec2 wait instance-running --instance-ids $instance_id
 
