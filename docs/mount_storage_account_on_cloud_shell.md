@@ -17,7 +17,7 @@
 
 <img src="img/choose_shell.png" alt="Choose Bash" width="960" height="600">
 
-* Next, choose **Mount storage account** and search for **Cloud Compete Testing** under *Storage account subscription*
+* Next, choose **Mount storage account** and search for **AKS Airlock** under *Storage account subscription*
 
 <img src="img/choose_storage.png" alt="Choose storage" width="960" height="600">
 
@@ -25,7 +25,7 @@
 
 <img src="img/confirm_existing.png" alt="Choose existing storage" width="960" height="600">
 
-* Fill in the *Resource group* with **compete-labs** and *Storage account name* with **akstelescopecompetelabs**
+* Fill in the *Resource group* with **telescope-compete-labs** and *Storage account name* with **akstelescopecompetelabs**
 * In *File share* section, choose **Create a file share** and type your name or useralias under *Name* and click *Ok*
 * Once all information is filled in, click **Select** and wait for CloudShell session to be open
 
